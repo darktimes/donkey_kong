@@ -125,7 +125,7 @@ void MenuGameState::stateTick() {
 	
         glActiveTexture(GL_TEXTURE0);
 
-	renderText("Score", 0.0f, 780.0f, 0.5f, Math::vec3<GLfloat>(0.5f, 0.0f, 0.0f));
+	renderText("Score", 0.0f, 780.0f, 0.5f, Math::vec3<GLfloat>(0.5f, 0.0f,git@github.com:darktimes/donkey_kong.git 0.0f));
 	renderText("Max.Record", 200.0f, 780.0f, 0.5f, Math::vec3<GLfloat>(0.5f, 0.0f, 0.0f));
 	renderText("Bonus", 450.0f, 780.0f, 0.5f, Math::vec3<GLfloat>(0.5f, 0.0f, 0.0f));
 	Record* firstRecord = ResourceManager::recordTable->getRecords()[0];
