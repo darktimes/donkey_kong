@@ -23,7 +23,7 @@ namespace Engine {
 			static void processInput(GLFWwindow*, int key, int scancode, int action, int mode);
 			static Renderer::Window* getGameWindow();
 						
-			void changeState(GameState* state);
+			static void changeState(GameState* state);
 
 		private:
 			GameState* currentGameState;

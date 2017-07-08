@@ -5,6 +5,8 @@
 #include <iostream>
 #include <map>
 
+#include "math.hpp"
+
 namespace Renderer {
 	class Window {
 		public:
@@ -23,8 +25,10 @@ namespace Renderer {
 	
 	class SpriteRenderer {
 		public:
+		    	static unsigned int textVBO, textVAO, textEBO;
 			static std::map<std::string, int> sprites;
 			static void init();	
+			static void renderText(std::string text, GLfloat x, GLfloat y, GLfloat scale, Math::vec3<GLfloat> color);
 		private:
 			static void addSprite(float* verticies, std::string name);	
 	};

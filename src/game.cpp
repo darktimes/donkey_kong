@@ -24,7 +24,7 @@ void Game::init(/*ERendererType rendererType*/) {
 		
 		ResourceManager::init();
 		SpriteRenderer::init();
-		instance->changeState(new MenuGameState());
+		changeState(new MenuGameState());
 	} else {
 		throw std::runtime_error("Can not re-init a running game.");
 	}
@@ -47,7 +47,8 @@ void Game::terminate() {
 //		ShaderProgram* shaderProgram = new ShaderProgram(VERTEX_SHADER, FRAGMENT_SHADER);
 		while (!instance->currentGameState->exits()) {
 			glfwPollEvents();
-//			shaderProgram->use();
+			glClearColor(0.2f, 0.3f, 0.3f, 1.0f);
+			glClear(GL_COLOR_BUFFER_BIT);
 			instance->currentGameState->tick();
 			glfwSwapBuffers(instance->gameWindow->windowHandle);
 		}
@@ -58,13 +59,16 @@ void Game::terminate() {
 
 void Game::changeState(GameState* state) {
 	Logger::i("GameState changed to " + state->getTag() + ".");
-	currentGameState = state;
+	if (instance->currentGameState) {
+		delete instance->currentGameState;
+	}
+	instance->currentGameState = state;
 	glfwSetKeyCallback(instance->getGameWindow()->windowHandle, &Game::processInput);
 }
 
 
 Game::Game() {
-	
+	currentGameState = nullptr;
 }
 
 Game::~Game() {

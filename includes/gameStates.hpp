@@ -23,6 +23,7 @@ namespace Engine {
 
 			virtual void processInput(GLFWwindow* window, int key, int scancode, int action, int mode) = 0;
 			virtual ~GameState() {};
+
 	};
 
 
@@ -30,14 +31,11 @@ namespace Engine {
 		static const std::string TAG;
 	
 		public:
-		
-		    	unsigned int VBO, VAO, EBO;
 			MenuGameState();
 			void stateTick() override;
 			bool exits() override;
 			std::string getTag() override;
 			void processInput(GLFWwindow* window, int key, int scancode, int action, int mode) override;
-			void renderText(std::string text, GLfloat x, GLfloat y, GLfloat scale, Math::vec3<GLfloat> color);
 	};
 	
 	class IPlayGameStateCallbacks {
@@ -53,6 +51,7 @@ namespace Engine {
 		static const std::string TAG; 
 	
 		public:
+			enum PlayState {ACTIVE, OVER};
 			PlayGameState();
 			void stateTick() override;
 			bool exits() override;
@@ -65,6 +64,9 @@ namespace Engine {
 			void finishLevel() override;
 			
 		private:
+			PlayState playState;
 			GameSession* gameSession;
+			double prevSecondStamp;
+			int prevKey;
 	};
 }

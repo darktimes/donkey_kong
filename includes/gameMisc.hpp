@@ -9,8 +9,11 @@ namespace Engine {
 		GameSession();
 		virtual ~GameSession();
 		
+		void setLevel(Level* level);
+
 		int lifeCount;
 		int points;
+		int currentBonus;
 		Level* currentLevel;
 	};
 }

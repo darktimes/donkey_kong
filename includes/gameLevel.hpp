@@ -1,5 +1,7 @@
 #pragma once
 
+#include <GL/glew.h>
+#include <GLFW/glfw3.h>
 #include <iostream>
 #include <vector>
 
@@ -21,6 +23,7 @@ namespace Engine {
 			
 			
 			std::vector<TerrainBlock*> terrainBlocks;
+			std::vector<TerrainBlock*> ladderBlocks;
 			
 //			std::vector<AnimatedActor> actors;
 			Mario* mario;
@@ -32,10 +35,16 @@ namespace Engine {
 			virtual void draw();
 			virtual void processInput(GLFWwindow* window, int key, int scancode, int action, int mode);
 			
-		private:
+		protected:
 			Level(unsigned startPointBonus, unsigned xBlockCount, unsigned yBlockCount, IPlayGameStateCallbacks* playGameStateCallbacks);
 	};
 
+	class Level1: public Level {
+		public:
+			Level1(IPlayGameStateCallbacks* playGameStateCallbacks);
+			void draw() override;
+			virtual ~Level1();
+	};
 }
 
 

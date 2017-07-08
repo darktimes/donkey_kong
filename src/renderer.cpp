@@ -1,11 +1,19 @@
 #include <stdexcept>
 #include "renderer.hpp"
 #include "utils.hpp"
+#include "resourceManager.hpp"
+#include "game.hpp"
+
 using namespace Renderer;
 using namespace Utils;
 
+
 const float Window::WINDOW_WIDTH = 560.0f;
 const float Window::WINDOW_HEIGHT = 800.0f;
+
+std::map<std::string, int> SpriteRenderer::sprites;
+
+unsigned int SpriteRenderer::textVBO, SpriteRenderer::textVAO, SpriteRenderer::textEBO;
 
 Window::Window(int width, int height, std::string wnd_title) {
 	this->width = width;
@@ -56,9 +64,23 @@ void SpriteRenderer::init() {
 	
 	addSprite(quadratVertices, std::string("quadratSprite"));
 	addSprite(halfedQuadratVertices, std::string("halfedQuadratSprite"));
-}
 
-std::map<std::string, int> SpriteRenderer::sprites;
+	glGenVertexArrays(1, &textVAO);
+	glGenBuffers(1, &textVBO);
+	glBindVertexArray(textVAO);
+	glBindBuffer(GL_ARRAY_BUFFER, textVBO);
+	glBufferData(GL_ARRAY_BUFFER, sizeof(GLfloat) * 6 * 4, NULL, GL_DYNAMIC_DRAW);
+	glEnableVertexAttribArray(0);
+	glVertexAttribPointer(0, 4, GL_FLOAT, GL_FALSE, 4 * sizeof(GLfloat), 0);
+	glBindBuffer(GL_ARRAY_BUFFER, 0);
+	glBindVertexArray(0);
+
+	Engine::ResourceManager::shaders["projectionShader"]->addUniformInt("texture1", 0, true);
+	Engine::ResourceManager::shaders["projectionShader"]->addUniformMatrix4("projection", Math::ortho(0.0f, Engine::Game::getGameWindow()->width,
+		 0.0f, Engine::Game::getGameWindow()->height, -1.0f, 1.0f), true);
+	Engine::ResourceManager::shaders["textShader"]->addUniformMatrix4("projection", Math::ortho(0.0f, Engine::Game::getGameWindow()->width,
+		 0.0f, Engine::Game::getGameWindow()->height, -1.0f, 1.0f), true);
+}
 
 void SpriteRenderer::addSprite(float* vertices, std::string name) {
 	
@@ -88,4 +110,53 @@ void SpriteRenderer::addSprite(float* vertices, std::string name) {
 	glEnableVertexAttribArray(1);
 	
 	sprites[name] = VAO;
+}
+
+void SpriteRenderer::renderText(std::string text, GLfloat x1, GLfloat y, GLfloat scale, Math::vec3<GLfloat> color)
+{
+    // Activate corresponding render state	
+    //shader.Use();
+    Engine::ResourceManager::shaders["textShader"]->use();
+    Engine::ResourceManager::shaders["textShader"]->addUniformVec3f("textColor", color, true);
+    //glUniform3f(glGetUniformLocation(shader.Program, "textColor"), color.x, color.y, color.z);
+    glActiveTexture(GL_TEXTURE0);
+    glBindVertexArray(textVAO);
+
+    // Iterate through all characters
+    std::string::const_iterator c;
+    GLfloat x = x1;
+    for (c = text.begin(); c != text.end(); c++) 
+    {
+        Engine::FontChar ch = *Engine::ResourceManager::font[*c];
+
+        GLfloat xpos = x + ch.bearing.x * scale;
+        GLfloat ypos = y - (ch.size.y - ch.bearing.y) * scale;
+
+        GLfloat w = ch.size.x * scale;
+        GLfloat h = ch.size.y * scale;
+        //Logger::w("g_w:" + std::to_string(w) + ", g_h:" + std::to_string(h));
+        // Update VBO for each character
+        GLfloat vertices[6][4] = {
+            { xpos,     ypos + h,   0.0, 0.0 },            
+            { xpos,     ypos,       0.0, 1.0 },
+            { xpos + w, ypos,       1.0, 1.0 },
+
+            { xpos,     ypos + h,   0.0, 0.0 },
+            { xpos + w, ypos,       1.0, 1.0 },
+            { xpos + w, ypos + h,   1.0, 0.0 }           
+        };
+        // Render glyph texture over quad
+        glBindTexture(GL_TEXTURE_2D, ch.textureId);
+        // Update content of VBO memory
+        glBindBuffer(GL_ARRAY_BUFFER, textVBO);
+        glBufferSubData(GL_ARRAY_BUFFER, 0, sizeof(vertices), vertices); // Be sure to use glBufferSubData and not glBufferData
+
+        glBindBuffer(GL_ARRAY_BUFFER, 0);
+        // Render quad
+        glDrawArrays(GL_TRIANGLES, 0, 6);
+        // Now advance cursors for next glyph (note that advance is number of 1/64 pixels)
+        x += (ch.advance>>6) * scale; // Bitshift by 6 to get value in pixels (2^6 = 64 (divide amount of 1/64th pixels by 64 to get amount of pixels))
+    }
+    glBindVertexArray(0);
+    glBindTexture(GL_TEXTURE_2D, 0);
 }

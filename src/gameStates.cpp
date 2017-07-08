@@ -5,6 +5,7 @@
 #include "utils.hpp"
 #include "gameLevel.hpp"
 #include "renderer.hpp"
+#include "records.hpp"
 //#include "records.hpp"
 #include <cmath>
 
@@ -30,111 +31,25 @@ void GameState::tick() {
 	}
 }
 
-
-Level* l;
-
-
-
 MenuGameState::MenuGameState() : GameState() {
 
-	ResourceManager::shaders["projectionShader"]->addUniformInt("texture1", 0, true);
-	ResourceManager::shaders["projectionShader"]->addUniformMatrix4("projection", Math::ortho(0.0f, Game::getGameWindow()->width, 0.0f, Game::getGameWindow()->height, -1.0f, 1.0f), true);
-	ResourceManager::shaders["textShader"]->addUniformMatrix4("projection", Math::ortho(0.0f, Game::getGameWindow()->width, 0.0f, Game::getGameWindow()->height, -1.0f, 1.0f), true);
-	
-	l = Level::generateLevel1(nullptr);
-
-	glGenVertexArrays(1, &VAO);
-	glGenBuffers(1, &VBO);
-	glBindVertexArray(VAO);
-	glBindBuffer(GL_ARRAY_BUFFER, VBO);
-	glBufferData(GL_ARRAY_BUFFER, sizeof(GLfloat) * 6 * 4, NULL, GL_DYNAMIC_DRAW);
-	glEnableVertexAttribArray(0);
-	glVertexAttribPointer(0, 4, GL_FLOAT, GL_FALSE, 4 * sizeof(GLfloat), 0);
-	glBindBuffer(GL_ARRAY_BUFFER, 0);
-	glBindVertexArray(0);
 }
 
-void MenuGameState::renderText(std::string text, GLfloat x1, GLfloat y, GLfloat scale, Math::vec3<GLfloat> color)
-{
-    // Activate corresponding render state	
-    //shader.Use();
-    ResourceManager::shaders["textShader"]->use();
-    ResourceManager::shaders["textShader"]->addUniformVec3f("textColor", color, true);
-    //glUniform3f(glGetUniformLocation(shader.Program, "textColor"), color.x, color.y, color.z);
-    glActiveTexture(GL_TEXTURE0);
-    glBindVertexArray(VAO);
 
-    // Iterate through all characters
-    std::string::const_iterator c;
-    GLfloat x = x1;
-    for (c = text.begin(); c != text.end(); c++) 
-    {
-        FontChar ch = *ResourceManager::font[*c];
-
-        GLfloat xpos = x + ch.bearing.x * scale;
-        GLfloat ypos = y - (ch.size.y - ch.bearing.y) * scale;
-
-        GLfloat w = ch.size.x * scale;
-        GLfloat h = ch.size.y * scale;
-        //Logger::w("g_w:" + std::to_string(w) + ", g_h:" + std::to_string(h));
-        // Update VBO for each character
-        GLfloat vertices[6][4] = {
-            { xpos,     ypos + h,   0.0, 0.0 },            
-            { xpos,     ypos,       0.0, 1.0 },
-            { xpos + w, ypos,       1.0, 1.0 },
-
-            { xpos,     ypos + h,   0.0, 0.0 },
-            { xpos + w, ypos,       1.0, 1.0 },
-            { xpos + w, ypos + h,   1.0, 0.0 }           
-        };
-        // Render glyph texture over quad
-        glBindTexture(GL_TEXTURE_2D, ch.textureId);
-        // Update content of VBO memory
-        glBindBuffer(GL_ARRAY_BUFFER, VBO);
-        glBufferSubData(GL_ARRAY_BUFFER, 0, sizeof(vertices), vertices); // Be sure to use glBufferSubData and not glBufferData
-
-        glBindBuffer(GL_ARRAY_BUFFER, 0);
-        // Render quad
-        glDrawArrays(GL_TRIANGLES, 0, 6);
-        // Now advance cursors for next glyph (note that advance is number of 1/64 pixels)
-        x += (ch.advance>>6) * scale; // Bitshift by 6 to get value in pixels (2^6 = 64 (divide amount of 1/64th pixels by 64 to get amount of pixels))
-    }
-    glBindVertexArray(0);
-    glBindTexture(GL_TEXTURE_2D, 0);
-}
 
 void MenuGameState::stateTick() {
-        glClearColor(0.2f, 0.3f, 0.3f, 1.0f);
-        glClear(GL_COLOR_BUFFER_BIT);
-
-        // bind textures on corresponding texture units
-        glActiveTexture(GL_TEXTURE0);
-	glBindTexture(GL_TEXTURE_2D, ResourceManager::textures["texture_brick"]->id);
-	
-	for (TerrainBlock* terrainBlock: l->terrainBlocks) {
-		Math::mat4 model;
-		model = Math::scale(model, TerrainBlock::blockEdgeLength);
-		model = Math::translate(model, *terrainBlock->position);
-		ResourceManager::shaders["projectionShader"]->use();
-		ResourceManager::shaders["projectionShader"]->addUniformMatrix4("model", model);
-	
-		glBindVertexArray(Renderer::SpriteRenderer::sprites["halfedQuadratSprite"]);
-		glDrawElements(GL_TRIANGLES, 6, GL_UNSIGNED_INT, 0);
+	Renderer::SpriteRenderer::renderText("To start a game press ENTER", 50.0f, 650.0f, 0.7, Math::vec3<GLfloat>(1.0f, 0.0f, 0.0f));
+	Renderer::SpriteRenderer::renderText("To exit press ESC", 150.0f, 550.0f, 0.7, Math::vec3<GLfloat>(1.0f, 0.0f, 0.0f));
+	GLfloat recordYpos = 400.0f;
+	Renderer::SpriteRenderer::renderText("Records", 220.0f, recordYpos, 0.7, Math::vec3<GLfloat>(0.8f, 0.0f, 0.0f));
+	recordYpos-=30.0f;
+	for (unsigned k = 0; k < RecordTable::RECORD_COUNT; k++) {
+		Record* currentRecord = ResourceManager::recordTable->getRecords()[k];
+		Renderer::SpriteRenderer::renderText(std::to_string(k + 1) + ". " , 150.0f, recordYpos - (k + 1) * 20.0f, 0.5, Math::vec3<GLfloat>(1.0f, 0.5f, 0.5f));
+		Renderer::SpriteRenderer::renderText(currentRecord->playerName, 175.0f, recordYpos - (k + 1) * 20.0f, 0.5, Math::vec3<GLfloat>(1.0f, 0.5f, 0.5f));
+		Renderer::SpriteRenderer::renderText(std::to_string(currentRecord->score) , 350.0f, recordYpos - (k + 1) * 20.0f, 0.5, Math::vec3<GLfloat>(1.0f, 0.5f, 0.5f));
+	//+ currentRecord->playerName + " " + std::to_string(currentRecord->score)
 	}
-
-	
-        glActiveTexture(GL_TEXTURE0);
-
-	renderText("Score", 0.0f, 780.0f, 0.5f, Math::vec3<GLfloat>(0.5f, 0.0f,git@github.com:darktimes/donkey_kong.git 0.0f));
-	renderText("Max.Record", 200.0f, 780.0f, 0.5f, Math::vec3<GLfloat>(0.5f, 0.0f, 0.0f));
-	renderText("Bonus", 450.0f, 780.0f, 0.5f, Math::vec3<GLfloat>(0.5f, 0.0f, 0.0f));
-	Record* firstRecord = ResourceManager::recordTable->getRecords()[0];
-	renderText(std::string((firstRecord->playerName) + ": " + std::to_string(firstRecord->score)), 200.0f, 760.0f, 0.5f, Math::vec3<GLfloat>(0.5f, 0.5f, 0.0f));
-
-	renderText("0", 0.0f, 760.0f, 0.5f, Math::vec3<GLfloat>(0.0f, 0.0f, 0.5f));
-	renderText("3000", 450.0f, 760.0f, 0.5f, Math::vec3<GLfloat>(0.0f, 0.0f, 0.5f));
-
-
 }
 
 bool MenuGameState::exits() {
@@ -148,17 +63,37 @@ std::string MenuGameState::getTag() {
 void MenuGameState::processInput(GLFWwindow* window, int key, int scancode, int action, int mode) {
 	if(key == GLFW_KEY_ESCAPE && action == GLFW_PRESS) {
     		glfwSetWindowShouldClose(window, GL_TRUE);
+	} else if (key == GLFW_KEY_ENTER && action == GLFW_PRESS) {
+		Game::changeState(new PlayGameState());
 	}
 }
 		
 
 PlayGameState::PlayGameState() : GameState() {
-
-
+	gameSession = new GameSession();
+	gameSession->setLevel(new Level1(this));
+	playState = ACTIVE;
+	prevKey = -1;
+	prevSecondStamp = glfwGetTime();
 }
 
 void PlayGameState::stateTick() {
-	//draw stuff
+	double currentTime = glfwGetTime();
+	if (currentTime - prevSecondStamp > 1.0f) {
+		prevSecondStamp += 1.0f;
+		gameSession->currentBonus -= 10.0f;
+	}
+
+	gameSession->currentLevel->draw();
+
+	Record* firstRecord = ResourceManager::recordTable->getRecords()[0];
+
+	Renderer::SpriteRenderer::renderText("Score", 0.0f, 780.0f, 0.5f, Math::vec3<GLfloat>(0.5f, 0.0f,0.0f));
+	Renderer::SpriteRenderer::renderText("Max.Record", 200.0f, 780.0f, 0.5f, Math::vec3<GLfloat>(0.5f, 0.0f, 0.0f));
+	Renderer::SpriteRenderer::renderText("Bonus", 450.0f, 780.0f, 0.5f, Math::vec3<GLfloat>(0.5f, 0.0f, 0.0f));
+	Renderer::SpriteRenderer::renderText(std::string((firstRecord->playerName) + ": " + std::to_string(firstRecord->score)), 200.0f, 760.0f, 0.5f, Math::vec3<GLfloat>(0.5f, 0.5f, 0.0f));
+	Renderer::SpriteRenderer::renderText(std::to_string(gameSession->points), 0.0f, 760.0f, 0.5f, Math::vec3<GLfloat>(0.0f, 0.0f, 0.5f));
+	Renderer::SpriteRenderer::renderText(std::to_string(gameSession->currentBonus), 450.0f, 760.0f, 0.5f, Math::vec3<GLfloat>(0.0f, 0.0f, 0.5f));
 }
 
 bool PlayGameState::exits() {
@@ -170,7 +105,27 @@ std::string PlayGameState::getTag() {
 }
 
 void PlayGameState::processInput(GLFWwindow* window, int key, int scancode, int action, int mode) {
+	
 
+	if (playState == OVER) {
+		
+	} else {
+
+/*
+		if (action == GLFW_RELEASE && prevKey != -1) {
+			if (prevKey == key) {
+				prevKey = -1;
+			}
+		}
+*/
+	
+	
+		if (key == GLFW_KEY_ESCAPE && action == GLFW_PRESS) {
+			Game::changeState(new MenuGameState());
+		} else {
+			
+		}
+	}
 }
 
 
@@ -179,12 +134,15 @@ double PlayGameState::getElapsedTime() {
 }
 
 void PlayGameState::decreaseLife() {
-
-
+	if (gameSession->lifeCount > 0) {
+		gameSession->lifeCount--;
+	} else {
+		playState = OVER;
+	}
 }
 
 void PlayGameState::addPoints(int points) {
-
+	gameSession->points+=points;
 }
 
 void PlayGameState::finishLevel() {

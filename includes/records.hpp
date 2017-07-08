@@ -12,8 +12,9 @@ namespace Engine {
 
 	class RecordTable {
 		static std::string const * const RECORD_TABLE_FILE;
-		static const unsigned int RECORD_COUNT;
+		
 		public:
+			static const unsigned int RECORD_COUNT;
 			RecordTable();
 			~RecordTable();
 			bool isNewScore(int score);
