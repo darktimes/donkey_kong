@@ -37,12 +37,14 @@ namespace Engine {
 			
 		protected:
 			Level(unsigned startPointBonus, unsigned xBlockCount, unsigned yBlockCount, IPlayGameStateCallbacks* playGameStateCallbacks);
+			virtual void initMario() = 0;
 	};
 
 	class Level1: public Level {
 		public:
 			Level1(IPlayGameStateCallbacks* playGameStateCallbacks);
 			void draw() override;
+			void initMario() override;
 			virtual ~Level1();
 	};
 }

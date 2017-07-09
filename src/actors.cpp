@@ -1,4 +1,5 @@
 #include "actors.hpp"
+#include "resourceManager.hpp"
 
 using namespace Engine;
 using namespace Math;
@@ -16,7 +17,7 @@ void Actor::draw() {
 	glBindTexture(GL_TEXTURE_2D, ResourceManager::textures[getTextureName()]->id);
 	Math::mat4 model;
 	model = Math::scale(model, TerrainBlock::blockEdgeLength);
-	model = Math::translate(model, *terrainBlock->position);
+	model = Math::translate(model, *position);
 	ResourceManager::shaders["projectionShader"]->use();
 	ResourceManager::shaders["projectionShader"]->addUniformMatrix4("model", model);
 
@@ -48,7 +49,7 @@ AnimatedActor::AnimatedActor(GLfloat width, GLfloat height, Math::vec2<GLfloat>*
 }
 
 void AnimatedActor::addAnimation(Animation* animation, std::string name) {
-	animations.add(name, animation);
+	animations[name] = animation;
 }
 
 AnimatedActor::~AnimatedActor() {
@@ -61,6 +62,20 @@ std::string AnimatedActor::getTextureName() {
 	return getCurrentAnimation()->getCurrentTexture();
 }
 
-Mario::Mario(Math::vec2<Glfloat>* pos): AnimatedActor(TerrainBlock::blockEdgeLength, TerrainBlock::blockEdgeLength * 2, pos) {
-	
+Mario::Mario(Math::vec2<GLfloat>* pos): AnimatedActor(TerrainBlock::blockEdgeLength, TerrainBlock::blockEdgeLength, pos) {
+	Animation* animRunRight = new Animation(std::vector<std::string> {"texture_mario_move_right_1", "texture_mario_move_right_2"});
+	addAnimation(animRunRight, "animRunRight");
+	animState = RUNNING_RIGHT;
+}
+
+Animation* Mario::getCurrentAnimation() {
+	switch (animState) {
+		case RUNNING_RIGHT: return animations["animRunRight"];
+		case RUNNING_LEFT: return animations["animRunLeft"]; //animRunLeft
+		case CLIMBING: return animations["animClimbing"];
+		case JUMPING_RIGHT: return animations["animJumpRight"];
+		case JUMPING_LEFT: return animations["animJumpLeft"];
+		default:
+			return nullptr;
+	}
 }

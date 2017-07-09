@@ -62,16 +62,17 @@ void SpriteRenderer::init() {
 		0.0f,  0.5f,   0.0f, 0.5f  // top left 
 	};
 
-	float halfedQuadratVertices2[] = {
+	float marioVertices[] = {
 		// positions   //texture coords
-		0.5f,  1.0f,   0.5f, 1.0f, // top right
-		0.5f,  0.0f,   0.5f, 0.0f, // bottom right
-		0.0f,  0.0f,   0.0f, 0.0f, // bottom left
-		0.0f,  1.0f,   0.0f, 1.0f  // top left 
+		2.0f/3.0f,  1.0f,   1.0f, 1.0f, // top right
+		2.0f/3.0f,  0.0f,   1.0f, 0.0f, // bottom right
+		0.0f, 	    0.0f,   0.0f, 0.0f, // bottom left
+		0.0f,       1.0f,   0.0f, 1.0f  // top left 
 	};
 	
 	addSprite(quadratVertices, std::string("quadratSprite"));
 	addSprite(halfedQuadratVertices, std::string("halfedQuadratSprite"));
+	addSprite(marioVertices, std::string("marioSprite"));
 
 	glGenVertexArrays(1, &textVAO);
 	glGenBuffers(1, &textVBO);

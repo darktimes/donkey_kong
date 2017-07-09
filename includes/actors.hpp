@@ -60,7 +60,7 @@ namespace Engine {
 
 		protected:
 			std::map<std::string, Animation*> animations;
-			void addAnimation(Animation* animation);
+			void addAnimation(Animation* animation, std::string name);
 
 	};
 

@@ -11,7 +11,6 @@ enum generateDirection {left, right};
 
 Level::Level(unsigned startPointBonus, unsigned xBlockCount, unsigned yBlockCount, IPlayGameStateCallbacks* playGameStateCallbacks):
 	startPointBonus(startPointBonus), xBlockCount(xBlockCount), yBlockCount(yBlockCount), playGameStateCallbacks(playGameStateCallbacks) {
-
 }
 
 void Level::processInput(GLFWwindow* window, int key, int scancode, int action, int mode) {
@@ -23,12 +22,18 @@ Level::~Level() {
 	delete mario;
 }
 
+void Level1::initMario() {
+	mario = new Mario(new Math::vec2<GLfloat>(20.0f, 40.0f));
+}
+
 void Level::draw() {
 
 
 	for (TerrainBlock* terrainBlock: terrainBlocks) {
 		terrainBlock->draw();
 	}
+
+	mario->draw();
 
 }
 
@@ -88,7 +93,11 @@ Level1::Level1(IPlayGameStateCallbacks* cbs): Level(2000, 28, 40, cbs) {
 		terrainBlocks.push_back(new TerrainBlock(TerrainBlock::TerrainBalk,
 			new Math::vec2<GLfloat>((GLfloat)(j * TerrainBlock::blockEdgeLength * 1.0f), 25 * TerrainBlock::blockEdgeLength)));
 	}
+
+	initMario();
 }
+
+
 
 void Level1::draw() {
 	Level::draw();
