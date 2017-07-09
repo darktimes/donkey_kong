@@ -23,6 +23,7 @@ const std::string* const Utils::retreive_binary_path() {
 			std::string::size_type t = path.find_last_of("/");
 			path = path.substr(0,t);
 		}
+
 		return new std::string(path + std::string("/"));
 }
 
@@ -55,7 +56,7 @@ void Logger::s(std::string msg) {
 void Logger::e(std::string msg) {
 	if (Logger::instance->loggerLevel >= error) {
 		Logger::instance->printMessage(error, msg);
-	} 
+	}
 }
 
 void Logger::w(std::string msg) {

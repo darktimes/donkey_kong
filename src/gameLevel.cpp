@@ -24,18 +24,10 @@ Level::~Level() {
 }
 
 void Level::draw() {
-        glActiveTexture(GL_TEXTURE0);
-	glBindTexture(GL_TEXTURE_2D, ResourceManager::textures["texture_brick"]->id);
+
 
 	for (TerrainBlock* terrainBlock: terrainBlocks) {
-		Math::mat4 model;
-		model = Math::scale(model, TerrainBlock::blockEdgeLength);
-		model = Math::translate(model, *terrainBlock->position);
-		ResourceManager::shaders["projectionShader"]->use();
-		ResourceManager::shaders["projectionShader"]->addUniformMatrix4("model", model);
-	
-		glBindVertexArray(Renderer::SpriteRenderer::sprites["halfedQuadratSprite"]);
-		glDrawElements(GL_TRIANGLES, 6, GL_UNSIGNED_INT, 0);
+		terrainBlock->draw();
 	}
 
 }
