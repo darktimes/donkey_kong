@@ -64,7 +64,7 @@ std::vector<TerrainBlock*> genLevel1Balk(unsigned startHeight, generateDirection
 
 
 void Level1::initMario() {
-	mario = new Mario(new Math::vec2<GLfloat>(500.0f, 600.0f));
+	mario = new Mario(new Math::vec2<GLfloat>(20.0f, 60.0f));
 }
 
 
@@ -107,39 +107,43 @@ Level1::Level1(IPlayGameStateCallbacks* cbs): Level(2000, 28, 40, cbs) {
 	GLfloat seventh = TerrainBlock::blockEdgeLength / 7.0f;
 
 	terrainBlocks.push_back(new TerrainBlock(TerrainLadder, new Math::vec2<GLfloat>(TerrainBlock::blockEdgeLength * 10.0f, TerrainBlock::blockEdgeLength)));
+	terrainBlocks.push_back(new TerrainBlock(TerrainLadder, new Math::vec2<GLfloat>(TerrainBlock::blockEdgeLength * 10.0f, TerrainBlock::blockEdgeLength * 2 )));
 	ladders.push_back(
 		new Ladder(
 			Math::vec2<GLfloat>(TerrainBlock::blockEdgeLength * 10.0f, TerrainBlock::blockEdgeLength),
-			Math::vec2<GLfloat>(TerrainBlock::blockEdgeLength, TerrainBlock::blockEdgeLength)
+			Math::vec2<GLfloat>(TerrainBlock::blockEdgeLength, TerrainBlock::blockEdgeLength * 2)
 			)
 	);
-	terrainBlocks.push_back(new TerrainBlock(TerrainLadder, new Math::vec2<GLfloat>(TerrainBlock::blockEdgeLength * 10.0f, TerrainBlock::blockEdgeLength * 2.5 )));
+
 	terrainBlocks.push_back(new TerrainBlock(TerrainLadder, new Math::vec2<GLfloat>(TerrainBlock::blockEdgeLength * 10.0f, TerrainBlock::blockEdgeLength * 3.5 )));
 	terrainBlocks.push_back(new TerrainBlock(TerrainLadder, new Math::vec2<GLfloat>(TerrainBlock::blockEdgeLength * 10.0f, TerrainBlock::blockEdgeLength * 4.5 )));
+	terrainBlocks.push_back(new TerrainBlock(TerrainLadder, new Math::vec2<GLfloat>(TerrainBlock::blockEdgeLength * 10.0f, TerrainBlock::blockEdgeLength * 5.5 )));
 	ladders.push_back(
 		new Ladder(
-			Math::vec2<GLfloat>(TerrainBlock::blockEdgeLength * 10.0f, TerrainBlock::blockEdgeLength * 2.5),
-			Math::vec2<GLfloat>(TerrainBlock::blockEdgeLength, TerrainBlock::blockEdgeLength * 3.5)
+			Math::vec2<GLfloat>(TerrainBlock::blockEdgeLength * 10.0f, TerrainBlock::blockEdgeLength * 3.5),
+			Math::vec2<GLfloat>(TerrainBlock::blockEdgeLength, TerrainBlock::blockEdgeLength * 3)
 			)
 	);
 
 	terrainBlocks.push_back(new TerrainBlock(TerrainLadder, new Math::vec2<GLfloat>(TerrainBlock::blockEdgeLength * 23.0f, TerrainBlock::blockEdgeLength + 5.0f * seventh)));
 	terrainBlocks.push_back(new TerrainBlock(TerrainLadder, new Math::vec2<GLfloat>(TerrainBlock::blockEdgeLength * 23.0f, TerrainBlock::blockEdgeLength * 2 + 5.0f * seventh)));
 	terrainBlocks.push_back(new TerrainBlock(TerrainLadder, new Math::vec2<GLfloat>(TerrainBlock::blockEdgeLength * 23.0f, TerrainBlock::blockEdgeLength * 3 + 5.0f * seventh)));
+	terrainBlocks.push_back(new TerrainBlock(TerrainLadder, new Math::vec2<GLfloat>(TerrainBlock::blockEdgeLength * 23.0f, TerrainBlock::blockEdgeLength * 4 + 5.0f * seventh)));
 	ladders.push_back(
 		new Ladder(
 			Math::vec2<GLfloat>(TerrainBlock::blockEdgeLength * 23.0f, TerrainBlock::blockEdgeLength + 5.0f * seventh),
-			Math::vec2<GLfloat>(TerrainBlock::blockEdgeLength, TerrainBlock::blockEdgeLength * 3)
+			Math::vec2<GLfloat>(TerrainBlock::blockEdgeLength, TerrainBlock::blockEdgeLength * 4)
 			)
 	);
 
-	terrainBlocks.push_back(new TerrainBlock(TerrainLadder, new Math::vec2<GLfloat>(TerrainBlock::blockEdgeLength * 4.0f, TerrainBlock::blockEdgeLength * 5 + 5.0f * seventh)));
-	terrainBlocks.push_back(new TerrainBlock(TerrainLadder, new Math::vec2<GLfloat>(TerrainBlock::blockEdgeLength * 4.0f, TerrainBlock::blockEdgeLength * 6 + 5.0f * seventh)));
-	terrainBlocks.push_back(new TerrainBlock(TerrainLadder, new Math::vec2<GLfloat>(TerrainBlock::blockEdgeLength * 4.0f, TerrainBlock::blockEdgeLength * 7 + 5.0f * seventh)));
+	terrainBlocks.push_back(new TerrainBlock(TerrainLadder, new Math::vec2<GLfloat>(TerrainBlock::blockEdgeLength * 4.0f, TerrainBlock::blockEdgeLength * 5 + 4.0f * seventh)));
+	terrainBlocks.push_back(new TerrainBlock(TerrainLadder, new Math::vec2<GLfloat>(TerrainBlock::blockEdgeLength * 4.0f, TerrainBlock::blockEdgeLength * 6 + 4.0f * seventh)));
+	terrainBlocks.push_back(new TerrainBlock(TerrainLadder, new Math::vec2<GLfloat>(TerrainBlock::blockEdgeLength * 4.0f, TerrainBlock::blockEdgeLength * 7 + 4.0f * seventh)));
+	terrainBlocks.push_back(new TerrainBlock(TerrainLadder, new Math::vec2<GLfloat>(TerrainBlock::blockEdgeLength * 4.0f, TerrainBlock::blockEdgeLength * 8 + 4.0f * seventh)));
 	ladders.push_back(
 		new Ladder(
-			Math::vec2<GLfloat>(TerrainBlock::blockEdgeLength * 4.0f, TerrainBlock::blockEdgeLength * 5 + 5.0f * seventh),
-			Math::vec2<GLfloat>(TerrainBlock::blockEdgeLength, TerrainBlock::blockEdgeLength * 3)
+			Math::vec2<GLfloat>(TerrainBlock::blockEdgeLength * 4.0f, TerrainBlock::blockEdgeLength * 5 + 4.0f * seventh),
+			Math::vec2<GLfloat>(TerrainBlock::blockEdgeLength, TerrainBlock::blockEdgeLength * 4)
 			)
 	);
 
@@ -147,10 +151,11 @@ Level1::Level1(IPlayGameStateCallbacks* cbs): Level(2000, 28, 40, cbs) {
 	terrainBlocks.push_back(new TerrainBlock(TerrainLadder, new Math::vec2<GLfloat>(TerrainBlock::blockEdgeLength * 12.0f, TerrainBlock::blockEdgeLength * 6)));
 	terrainBlocks.push_back(new TerrainBlock(TerrainLadder, new Math::vec2<GLfloat>(TerrainBlock::blockEdgeLength * 12.0f, TerrainBlock::blockEdgeLength * 7)));
 	terrainBlocks.push_back(new TerrainBlock(TerrainLadder, new Math::vec2<GLfloat>(TerrainBlock::blockEdgeLength * 12.0f, TerrainBlock::blockEdgeLength * 8)));
+	terrainBlocks.push_back(new TerrainBlock(TerrainLadder, new Math::vec2<GLfloat>(TerrainBlock::blockEdgeLength * 12.0f, TerrainBlock::blockEdgeLength * 9)));
 	ladders.push_back(
 		new Ladder(
 			Math::vec2<GLfloat>(TerrainBlock::blockEdgeLength * 12.0f, TerrainBlock::blockEdgeLength * 5),
-			Math::vec2<GLfloat>(TerrainBlock::blockEdgeLength, TerrainBlock::blockEdgeLength * 4)
+			Math::vec2<GLfloat>(TerrainBlock::blockEdgeLength, TerrainBlock::blockEdgeLength * 5)
 			)
 	);
 
@@ -161,58 +166,64 @@ Level1::Level1(IPlayGameStateCallbacks* cbs): Level(2000, 28, 40, cbs) {
 	ladders.push_back(
 		new Ladder(
 			Math::vec2<GLfloat>(TerrainBlock::blockEdgeLength * 8.0f, TerrainBlock::blockEdgeLength * 8 + 4 * seventh),
+			Math::vec2<GLfloat>(TerrainBlock::blockEdgeLength, TerrainBlock::blockEdgeLength * 4)
+			)
+	);
+
+	terrainBlocks.push_back(new TerrainBlock(TerrainLadder, new Math::vec2<GLfloat>(TerrainBlock::blockEdgeLength * 14.0f, TerrainBlock::blockEdgeLength * 9 )));
+	terrainBlocks.push_back(new TerrainBlock(TerrainLadder, new Math::vec2<GLfloat>(TerrainBlock::blockEdgeLength * 14.0f, TerrainBlock::blockEdgeLength * 10)));
+	terrainBlocks.push_back(new TerrainBlock(TerrainLadder, new Math::vec2<GLfloat>(TerrainBlock::blockEdgeLength * 14.0f, TerrainBlock::blockEdgeLength * 11)));
+	terrainBlocks.push_back(new TerrainBlock(TerrainLadder, new Math::vec2<GLfloat>(TerrainBlock::blockEdgeLength * 14.0f, TerrainBlock::blockEdgeLength * 12)));
+	terrainBlocks.push_back(new TerrainBlock(TerrainLadder, new Math::vec2<GLfloat>(TerrainBlock::blockEdgeLength * 14.0f, TerrainBlock::blockEdgeLength * 13)));
+	ladders.push_back(
+		new Ladder(
+			Math::vec2<GLfloat>(TerrainBlock::blockEdgeLength * 14.0f, TerrainBlock::blockEdgeLength * 9),
 			Math::vec2<GLfloat>(TerrainBlock::blockEdgeLength, TerrainBlock::blockEdgeLength * 5)
 			)
 	);
 
-	terrainBlocks.push_back(new TerrainBlock(TerrainLadder, new Math::vec2<GLfloat>(TerrainBlock::blockEdgeLength * 14.0f, TerrainBlock::blockEdgeLength * 9 + 1 * seventh)));
-	terrainBlocks.push_back(new TerrainBlock(TerrainLadder, new Math::vec2<GLfloat>(TerrainBlock::blockEdgeLength * 14.0f, TerrainBlock::blockEdgeLength * 10 + 1 * seventh)));
-	terrainBlocks.push_back(new TerrainBlock(TerrainLadder, new Math::vec2<GLfloat>(TerrainBlock::blockEdgeLength * 14.0f, TerrainBlock::blockEdgeLength * 11 + 1 * seventh)));
-	terrainBlocks.push_back(new TerrainBlock(TerrainLadder, new Math::vec2<GLfloat>(TerrainBlock::blockEdgeLength * 14.0f, TerrainBlock::blockEdgeLength * 12 + 1 * seventh)));
+	terrainBlocks.push_back(new TerrainBlock(TerrainLadder, new Math::vec2<GLfloat>(TerrainBlock::blockEdgeLength * 23.0f, TerrainBlock::blockEdgeLength * 9 + 4.0f * seventh)));
+	terrainBlocks.push_back(new TerrainBlock(TerrainLadder, new Math::vec2<GLfloat>(TerrainBlock::blockEdgeLength * 23.0f, TerrainBlock::blockEdgeLength * 10 + 4.0f * seventh)));
+	terrainBlocks.push_back(new TerrainBlock(TerrainLadder, new Math::vec2<GLfloat>(TerrainBlock::blockEdgeLength * 23.0f, TerrainBlock::blockEdgeLength * 11 + 4.0f * seventh)));
+	terrainBlocks.push_back(new TerrainBlock(TerrainLadder, new Math::vec2<GLfloat>(TerrainBlock::blockEdgeLength * 23.0f, TerrainBlock::blockEdgeLength * 12 + 4.0f * seventh)));
 	ladders.push_back(
 		new Ladder(
-			Math::vec2<GLfloat>(TerrainBlock::blockEdgeLength * 14.0f, TerrainBlock::blockEdgeLength * 9 + 1 * seventh),
+			Math::vec2<GLfloat>(TerrainBlock::blockEdgeLength * 23.0f, TerrainBlock::blockEdgeLength * 9 + 4.0f * seventh),
 			Math::vec2<GLfloat>(TerrainBlock::blockEdgeLength, TerrainBlock::blockEdgeLength * 4)
 			)
 	);
 
-	terrainBlocks.push_back(new TerrainBlock(TerrainLadder, new Math::vec2<GLfloat>(TerrainBlock::blockEdgeLength * 23.0f, TerrainBlock::blockEdgeLength * 9 + 5.0f * seventh)));
-	terrainBlocks.push_back(new TerrainBlock(TerrainLadder, new Math::vec2<GLfloat>(TerrainBlock::blockEdgeLength * 23.0f, TerrainBlock::blockEdgeLength * 10 + 5.0f * seventh)));
-	terrainBlocks.push_back(new TerrainBlock(TerrainLadder, new Math::vec2<GLfloat>(TerrainBlock::blockEdgeLength * 23.0f, TerrainBlock::blockEdgeLength * 11 + 5.0f * seventh)));
+	terrainBlocks.push_back(new TerrainBlock(TerrainLadder, new Math::vec2<GLfloat>(TerrainBlock::blockEdgeLength * 4.0f, TerrainBlock::blockEdgeLength * 13 + 4 * seventh)));
+	terrainBlocks.push_back(new TerrainBlock(TerrainLadder, new Math::vec2<GLfloat>(TerrainBlock::blockEdgeLength * 4.0f, TerrainBlock::blockEdgeLength * 14 + 4 * seventh)));
+	terrainBlocks.push_back(new TerrainBlock(TerrainLadder, new Math::vec2<GLfloat>(TerrainBlock::blockEdgeLength * 4.0f, TerrainBlock::blockEdgeLength * 15 + 4 * seventh)));
+	terrainBlocks.push_back(new TerrainBlock(TerrainLadder, new Math::vec2<GLfloat>(TerrainBlock::blockEdgeLength * 4.0f, TerrainBlock::blockEdgeLength * 16 + 4 * seventh)));
 	ladders.push_back(
 		new Ladder(
-			Math::vec2<GLfloat>(TerrainBlock::blockEdgeLength * 23.0f, TerrainBlock::blockEdgeLength * 9 + 5.0f * seventh),
-			Math::vec2<GLfloat>(TerrainBlock::blockEdgeLength, TerrainBlock::blockEdgeLength * 3)
-			)
-	);
-
-	terrainBlocks.push_back(new TerrainBlock(TerrainLadder, new Math::vec2<GLfloat>(TerrainBlock::blockEdgeLength * 4.0f, TerrainBlock::blockEdgeLength * 13 + 5 * seventh)));
-	terrainBlocks.push_back(new TerrainBlock(TerrainLadder, new Math::vec2<GLfloat>(TerrainBlock::blockEdgeLength * 4.0f, TerrainBlock::blockEdgeLength * 14 + 5 * seventh)));
-	terrainBlocks.push_back(new TerrainBlock(TerrainLadder, new Math::vec2<GLfloat>(TerrainBlock::blockEdgeLength * 4.0f, TerrainBlock::blockEdgeLength * 15 + 5 * seventh)));
-	ladders.push_back(
-		new Ladder(
-			Math::vec2<GLfloat>(TerrainBlock::blockEdgeLength * 4.0f, TerrainBlock::blockEdgeLength * 13 + 5.0f * seventh),
-			Math::vec2<GLfloat>(TerrainBlock::blockEdgeLength, TerrainBlock::blockEdgeLength * 3)
-			)
-	);
-
-	terrainBlocks.push_back(new TerrainBlock(TerrainLadder, new Math::vec2<GLfloat>(TerrainBlock::blockEdgeLength * 9.0f, TerrainBlock::blockEdgeLength * 13 + 3 * seventh)));
-	terrainBlocks.push_back(new TerrainBlock(TerrainLadder, new Math::vec2<GLfloat>(TerrainBlock::blockEdgeLength * 9.0f, TerrainBlock::blockEdgeLength * 14 + 3 * seventh)));
-	terrainBlocks.push_back(new TerrainBlock(TerrainLadder, new Math::vec2<GLfloat>(TerrainBlock::blockEdgeLength * 9.0f, TerrainBlock::blockEdgeLength * 15 + 3 * seventh)));
-	terrainBlocks.push_back(new TerrainBlock(TerrainLadder, new Math::vec2<GLfloat>(TerrainBlock::blockEdgeLength * 9.0f, TerrainBlock::blockEdgeLength * 16 + 3 * seventh)));
-	ladders.push_back(
-		new Ladder(
-			Math::vec2<GLfloat>(TerrainBlock::blockEdgeLength * 9.0f, TerrainBlock::blockEdgeLength * 13 + 3.0f * seventh),
+			Math::vec2<GLfloat>(TerrainBlock::blockEdgeLength * 4.0f, TerrainBlock::blockEdgeLength * 13 + 4.0f * seventh),
 			Math::vec2<GLfloat>(TerrainBlock::blockEdgeLength, TerrainBlock::blockEdgeLength * 4)
+			)
+	);
+
+	terrainBlocks.push_back(new TerrainBlock(TerrainLadder, new Math::vec2<GLfloat>(TerrainBlock::blockEdgeLength * 9.0f, TerrainBlock::blockEdgeLength * 13 + 2 * seventh)));
+	terrainBlocks.push_back(new TerrainBlock(TerrainLadder, new Math::vec2<GLfloat>(TerrainBlock::blockEdgeLength * 9.0f, TerrainBlock::blockEdgeLength * 14 + 2 * seventh)));
+	terrainBlocks.push_back(new TerrainBlock(TerrainLadder, new Math::vec2<GLfloat>(TerrainBlock::blockEdgeLength * 9.0f, TerrainBlock::blockEdgeLength * 15 + 2 * seventh)));
+	terrainBlocks.push_back(new TerrainBlock(TerrainLadder, new Math::vec2<GLfloat>(TerrainBlock::blockEdgeLength * 9.0f, TerrainBlock::blockEdgeLength * 16 + 2 * seventh)));
+	terrainBlocks.push_back(new TerrainBlock(TerrainLadder, new Math::vec2<GLfloat>(TerrainBlock::blockEdgeLength * 9.0f, TerrainBlock::blockEdgeLength * 17 + 2 * seventh)));
+	ladders.push_back(
+		new Ladder(
+			Math::vec2<GLfloat>(TerrainBlock::blockEdgeLength * 9.0f, TerrainBlock::blockEdgeLength * 13 + 2.0f * seventh),
+			Math::vec2<GLfloat>(TerrainBlock::blockEdgeLength, TerrainBlock::blockEdgeLength * 5)
 			)
 	);
 
 	terrainBlocks.push_back(new TerrainBlock(TerrainLadder, new Math::vec2<GLfloat>(TerrainBlock::blockEdgeLength * 21.0f, TerrainBlock::blockEdgeLength * 15 + 5 * seventh)));
 	terrainBlocks.push_back(new TerrainBlock(TerrainLadder, new Math::vec2<GLfloat>(TerrainBlock::blockEdgeLength * 21.0f, TerrainBlock::blockEdgeLength * 16 + 5 * seventh)));
+	terrainBlocks.push_back(new TerrainBlock(TerrainLadder, new Math::vec2<GLfloat>(TerrainBlock::blockEdgeLength * 21.0f, TerrainBlock::blockEdgeLength * 17 + 5 * seventh)));
+
 	ladders.push_back(
 		new Ladder(
 			Math::vec2<GLfloat>(TerrainBlock::blockEdgeLength * 21.0f, TerrainBlock::blockEdgeLength * 15 + 5.0f * seventh),
-			Math::vec2<GLfloat>(TerrainBlock::blockEdgeLength, TerrainBlock::blockEdgeLength * 2)
+			Math::vec2<GLfloat>(TerrainBlock::blockEdgeLength, TerrainBlock::blockEdgeLength * 3)
 			)
 	);
 
@@ -226,10 +237,11 @@ Level1::Level1(IPlayGameStateCallbacks* cbs): Level(2000, 28, 40, cbs) {
 	);
 	terrainBlocks.push_back(new TerrainBlock(TerrainLadder, new Math::vec2<GLfloat>(TerrainBlock::blockEdgeLength * 11.0f, TerrainBlock::blockEdgeLength * 19.5  + 5 * seventh)));
 	terrainBlocks.push_back(new TerrainBlock(TerrainLadder, new Math::vec2<GLfloat>(TerrainBlock::blockEdgeLength * 11.0f, TerrainBlock::blockEdgeLength * 20.5  + 5 * seventh)));
+	terrainBlocks.push_back(new TerrainBlock(TerrainLadder, new Math::vec2<GLfloat>(TerrainBlock::blockEdgeLength * 11.0f, TerrainBlock::blockEdgeLength * 21.5  + 5 * seventh)));
 	ladders.push_back(
 		new Ladder(
 			Math::vec2<GLfloat>(TerrainBlock::blockEdgeLength * 11.0f, TerrainBlock::blockEdgeLength * 19.5 + 5.0f * seventh),
-			Math::vec2<GLfloat>(TerrainBlock::blockEdgeLength, TerrainBlock::blockEdgeLength * 2)
+			Math::vec2<GLfloat>(TerrainBlock::blockEdgeLength, TerrainBlock::blockEdgeLength * 3)
 			)
 	);
 
@@ -238,10 +250,11 @@ Level1::Level1(IPlayGameStateCallbacks* cbs): Level(2000, 28, 40, cbs) {
 	terrainBlocks.push_back(new TerrainBlock(TerrainLadder, new Math::vec2<GLfloat>(TerrainBlock::blockEdgeLength * 16.0f, TerrainBlock::blockEdgeLength * 23  + 5 * seventh)));
 	terrainBlocks.push_back(new TerrainBlock(TerrainLadder, new Math::vec2<GLfloat>(TerrainBlock::blockEdgeLength * 16.0f, TerrainBlock::blockEdgeLength * 24  + 5 * seventh)));
 	terrainBlocks.push_back(new TerrainBlock(TerrainLadder, new Math::vec2<GLfloat>(TerrainBlock::blockEdgeLength * 16.0f, TerrainBlock::blockEdgeLength * 25  + 5 * seventh)));
+	terrainBlocks.push_back(new TerrainBlock(TerrainLadder, new Math::vec2<GLfloat>(TerrainBlock::blockEdgeLength * 16.0f, TerrainBlock::blockEdgeLength * 26  + 5 * seventh)));
 	ladders.push_back(
 		new Ladder(
 			Math::vec2<GLfloat>(TerrainBlock::blockEdgeLength * 16.0f, TerrainBlock::blockEdgeLength * 21 + 4.0f * seventh),
-			Math::vec2<GLfloat>(TerrainBlock::blockEdgeLength, TerrainBlock::blockEdgeLength * 5)
+			Math::vec2<GLfloat>(TerrainBlock::blockEdgeLength, TerrainBlock::blockEdgeLength * 6)
 			)
 	);
 

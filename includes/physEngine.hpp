@@ -8,7 +8,7 @@
 #include "gameLevel.hpp"
 #include "actors.hpp"
 #include "math.hpp"
-##include "renderer.hpp"
+#include "renderer.hpp"
 
 namespace Engine {
 	class Level;
@@ -39,7 +39,8 @@ namespace Physics {
 
 	};
 
-	GLfloat collisionBias = 2.0f;
+	extern GLfloat collisionBias;
+
 	class PhysEngine {
 		public:
 			static void init(Engine::Level* level);
@@ -56,6 +57,8 @@ namespace Physics {
 			double lastTime;
 			PhysEngine();
 			void processCollisions();
+			bool buttonPressed(int key);
+			void eraseButton(int key);
 //			void resolveReflections();
 			void moveEntities();
 

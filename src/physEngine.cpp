@@ -8,6 +8,8 @@ using namespace Utils;
 
 PhysEngine* PhysEngine::instance = nullptr;
 
+GLfloat Physics::collisionBias = 2.0f;
+
 PhysLevel::PhysLevel(Engine::Level* level): level(level), mario(level->mario) {
 }
 
@@ -55,6 +57,16 @@ void PhysEngine::processCollisions() {
 
 }
 
+bool PhysEngine::buttonPressed(int key) {
+	return currentPhysLevel->level->keySet.find(key) != currentPhysLevel->level->keySet.end();
+}
+
+void PhysEngine::eraseButton(int key) {
+	if (buttonPressed(key)) {
+		currentPhysLevel->level->keySet.erase(currentPhysLevel->level->keySet.find(key));
+	}
+}
+
 void PhysEngine::moveEntities() {
 	if (pause) {
 		return;
@@ -70,90 +82,205 @@ void PhysEngine::moveEntities() {
 	mario->position->x += mario->pEntity->velocity->x * elapsedTime;
 	mario->position->y += mario->pEntity->velocity->y * elapsedTime;
 
-	std::vector<Collision> marioCollisions;
-	bool hasGroundBeneath = false;
+	bool x_touched_left_window = mario->position->x <= 0.0f && mario->position->x >= -collisionBias;
+	bool x_touched_right_window = mario->position->x + mario->width <= Renderer::Window::WINDOW_WIDTH + collisionBias && mario->position->x + mario->width >= Renderer::Window::WINDOW_WIDTH;
+
+	// std::vector<Collision> marioCollisions;
+	// bool hasGroundBeneath = false;
+
+	TerrainBlock* groundBlock = nullptr;
+	TerrainBlock* touchedRightBlock = nullptr;
+	TerrainBlock* touchedLeftBlock = nullptr;
+
 	for (TerrainBlock* terrainBlock: currentPhysLevel->level->terrainBlocks) {
+		bool x_collided = (mario->position->x <= terrainBlock->position->x + terrainBlock->width && mario->position->x + mario->width >= terrainBlock->position->x);
+		bool y_collided = mario->position->y + mario->height >= terrainBlock->position->y && mario->position->y <= terrainBlock->position->y + terrainBlock->height;
 		if (terrainBlock->type == Engine::TerrainBalk) {
-			if (std::get<0>(checkMarioCollision(mario, terrainBlock, true))) {
-					hasGroundBeneath = true;
+			bool x_touched_right = mario->position->x + mario->width >= terrainBlock->position->x && mario->position->x + mario->width <= terrainBlock->position->x + collisionBias;
+			bool x_touched_left = mario->position->x >= terrainBlock->position->x + terrainBlock->width - collisionBias && mario->position->x <= terrainBlock->position->x + terrainBlock->width;
+			bool y_touched_up = mario->position->y <= terrainBlock->position->y + terrainBlock->height && mario->position->y >= terrainBlock->position->y + terrainBlock->height - collisionBias;
+
+			if (y_touched_up && x_collided) {
+				groundBlock = terrainBlock;
 			}
-			Collision current = checkMarioCollision(mario, terrainBlock, false);
-			if (std::get<0>(current)) {
-				marioCollisions.push_back(current);
+			if (y_collided && x_touched_left) {
+				touchedLeftBlock = terrainBlock;
+			} else if (y_collided && x_touched_right) {
+				touchedRightBlock = terrainBlock;
 			}
 		}
 	}
 
-	if (mario->climbing) {
+	bool canClimb = false;
 
-	} else if (mario->jumping) {
-		mario->pEntity->velocity->y -= 360.0f * elapsedTime;
-		for (Collision collision: marioCollisions) {
-			Direction collisionDirection = std::get<1>(collision);
-			TerrainBlock* terrainBlock = std::get<2>(collision);
-			Math::vec2<GLfloat> collisionVelocity = std::get<3>(collision);
-			if (collisionDirection == RIGHT || collisionDirection == LEFT) {
-					// if (Math::dot(*collisionVelocity.normalize(), Math::vec2<GLfloat>(0.0f, 1.0f)) >
-					// 	Math::dot(*collisionVelocity.normalize(), Math::vec2<GLfloat>(0.0f, -1.0f)))
-					// 	{
-						// GLfloat yDelta = abs(terrainBlock->position->y + terrainBlock->height - mario->position->y);
-						// if (yDelta <= TerrainBlock::blockEdgeLength / 7.0f) {
-						// 	Logger::i("x");
-						// 	mario->position->y +=yDelta;
-						// } else {
-							mario->pEntity->velocity->x = 0.0f;
-						// }
-					if (currentPhysLevel->level->keySet.find(GLFW_KEY_A) != currentPhysLevel->level->keySet.end()) {
-						currentPhysLevel->level->keySet.erase(currentPhysLevel->level->keySet.find(GLFW_KEY_A));
+	for (Ladder* ladder : currentPhysLevel->level->ladders) {
+		bool x_collided = mario->position->x + mario->width <= ladder->location.x + ladder->dimensions.x && mario->position->x >= ladder->location.x;
+		bool y_collided = mario->position->y >= ladder->location.y && mario->position->y + mario->height <= ladder->location.y + ladder->dimensions.y;
+		if (x_collided && y_collided) {
+			canClimb = true;
+		}
+	}
+Logger::i(std::to_string(canClimb));
+	if (mario->jumping) {
+		if (groundBlock) {
+			mario->setState(Mario::AT_GROUND);
+			mario->pEntity->velocity->y = 0.0f;
+			mario->position->y = groundBlock->position->y + groundBlock->height;
+			if (mario->pEntity->velocity->x > 0) {
+				if (buttonPressed(GLFW_KEY_D)) {
+					if (!buttonPressed(GLFW_KEY_A)) {
+						mario->pEntity->velocity->x = Physics::movementDelta;
+					} else {
+						mario->pEntity->velocity->x = 0.0f;
 					}
-					if (currentPhysLevel->level->keySet.find(GLFW_KEY_D) != currentPhysLevel->level->keySet.end()) {
-						currentPhysLevel->level->keySet.erase(currentPhysLevel->level->keySet.find(GLFW_KEY_D));
-					}
-				// }
-			} else if (collisionDirection == UP) {
-				mario->position->y = terrainBlock->position->y + terrainBlock->height;
-				mario->pEntity->velocity->x = 0.0f;
-				mario->pEntity->velocity->y = 0.0f;
-				mario->setState(Mario::AT_GROUND);
-				std::set<int>::iterator a_key = currentPhysLevel->level->keySet.find(GLFW_KEY_A);
-				std::set<int>::iterator d_key = currentPhysLevel->level->keySet.find(GLFW_KEY_D);
-				if (a_key != currentPhysLevel->level->keySet.end()) {
-					mario->pEntity->velocity->x -= Physics::movementDelta;
+				} else {
+					mario->pEntity->velocity->x = 0.0f;
 				}
-				if (d_key != currentPhysLevel->level->keySet.end()) {
-					mario->pEntity->velocity->x += Physics::movementDelta;
+			} else if (mario->pEntity->velocity->x < 0) {
+				if (buttonPressed(GLFW_KEY_A)) {
+					if (!buttonPressed(GLFW_KEY_D)) {
+						mario->pEntity->velocity->x = -Physics::movementDelta;
+					} else {
+						mario->pEntity->velocity->x = 0.0f;
+					}
+				} else {
+					mario->pEntity->velocity->x = 0.0f;
+				}
+			}
+		} else {
+			if (x_touched_left_window) {
+				mario->position->x = 0.0f;
+				eraseButton(GLFW_KEY_A);
+				mario->pEntity->velocity->x = 0.0f;
+			} else if (x_touched_right_window) {
+				mario->position->x = Renderer::Window::WINDOW_WIDTH - mario->width;
+				eraseButton(GLFW_KEY_D);
+				mario->pEntity->velocity->x = 0.0f;
+			}
+			if (buttonPressed(GLFW_KEY_A)) {
+				if (!buttonPressed(GLFW_KEY_D)) {
+					mario->pEntity->velocity->x = -Physics::movementDelta;
+				} else {
+					mario->pEntity->velocity->x = 0.0f;
+				}
+			} else if (buttonPressed(GLFW_KEY_D)) {
+				if (!buttonPressed(GLFW_KEY_A)) {
+					mario->pEntity->velocity->x = Physics::movementDelta;
+				} else {
+					mario->pEntity->velocity->x = 0.0f;
+				}
+			}
+			mario->pEntity->velocity->y -= TerrainBlock::blockEdgeLength * 9.8f * elapsedTime;
+			if (buttonPressed(GLFW_KEY_W) || buttonPressed(GLFW_KEY_S)) {
+				if (canClimb) {
+					mario->setState(Mario::CLIMBING);
+					mario->pEntity->velocity->x = 0;
+					mario->pEntity->velocity->y = 0;
 				}
 			}
 		}
 	} else if (mario->atGround) {
-		if (!hasGroundBeneath) {
-			mario->setState(Mario::JUMPING);
-		} else {
-			for (Collision collision: marioCollisions) {
-				Direction collisionDirection = std::get<1>(collision);
-				if (collisionDirection == LEFT || collisionDirection == RIGHT) {
-					TerrainBlock* terrainBlock = std::get<2>(collision);
-					GLfloat yDelta = (terrainBlock->position->y + terrainBlock->height - mario->position->y);
-					// Utils::Logger::i("delta: " + std::to_string(yDelta) + ", deltaMax: " + std::to_string(TerrainBlock::blockEdgeLength / 7.0f));
-					if (yDelta <= (GLuint)(TerrainBlock::blockEdgeLength / 7.0f) + 1) {
+		if (groundBlock) {
+			if (!x_touched_left_window && !x_touched_right_window) {
+				TerrainBlock* touchedBlock = nullptr;
+				if (touchedRightBlock) {
+					touchedBlock = touchedRightBlock;
+				} else if (touchedLeftBlock) {
+					touchedBlock = touchedLeftBlock;
+				}
+				if (touchedBlock) {
+					GLfloat yDelta = touchedBlock->position->y - groundBlock->position->y;
+					if (yDelta <= ceil(TerrainBlock::blockEdgeLength / 7.0f)) {
 						mario->position->y += yDelta;
-
 					} else {
+						if (touchedLeftBlock) {
+							mario->position->x = touchedLeftBlock->position->x;
+							eraseButton(GLFW_KEY_A);
+						} else if (touchedRightBlock) {
+							mario->position->x = touchedRightBlock->position->x - mario->width;
+							eraseButton(GLFW_KEY_D);
+						}
 						mario->pEntity->velocity->x = 0.0f;
-						if (currentPhysLevel->level->keySet.find(GLFW_KEY_A) != currentPhysLevel->level->keySet.end()) {
-							currentPhysLevel->level->keySet.erase(currentPhysLevel->level->keySet.find(GLFW_KEY_A));
-						}
-						if (currentPhysLevel->level->keySet.find(GLFW_KEY_D) != currentPhysLevel->level->keySet.end()) {
-							currentPhysLevel->level->keySet.erase(currentPhysLevel->level->keySet.find(GLFW_KEY_D));
-						}
 					}
+				}
+			} else {
+				if (x_touched_left_window) {
+					mario->position->x = 0.0f;
+					mario->pEntity->velocity->x = 0.0f;
+					eraseButton(GLFW_KEY_A);
+				} else if (x_touched_right_window) {
+					mario->pEntity->velocity->x = 0.0f;
+					mario->position->x = Renderer::Window::WINDOW_WIDTH - mario->width;
+					eraseButton(GLFW_KEY_D);
+				}
+				mario->pEntity->velocity->x = 0.0f;
+			}
+			if (buttonPressed(GLFW_KEY_A)) {
+				if (!buttonPressed(GLFW_KEY_D)) {
+					mario->pEntity->velocity->x = -Physics::movementDelta;
+				} else {
+					mario->pEntity->velocity->x = 0.0f;
+				}
+			} else if (!buttonPressed(GLFW_KEY_A)) {
+				if (buttonPressed(GLFW_KEY_D)) {
+					mario->pEntity->velocity->x = Physics::movementDelta;
+				} else {
+					mario->pEntity->velocity->x = 0.0f;
+				}
+			}
+			if (buttonPressed(GLFW_KEY_SPACE)) {
+				mario->pEntity->velocity->y = 1.5 * Physics::movementDelta;
+			}
+			if (buttonPressed(GLFW_KEY_W) || buttonPressed(GLFW_KEY_S)) {
+				if (canClimb) {
+					mario->setState(Mario::CLIMBING);
+					mario->pEntity->velocity->x = 0;
+					mario->pEntity->velocity->y = 0;
+				}
+			}
+		} else {
+			mario->setState(Mario::JUMPING);
+		}
+	} else if (mario->climbing) {
+		if (!canClimb) {
+			if (groundBlock) {
+				mario->setState(Mario::AT_GROUND);
+			} else {
+				mario->setState(Mario::JUMPING);
+			}
+		} else {
+			if (groundBlock) {
+				mario->setState(Mario::AT_GROUND);
+			}
+			if (buttonPressed(GLFW_KEY_W)) {
+				if (!buttonPressed(GLFW_KEY_S)) {
+					mario->pEntity->velocity->y = Physics::movementDelta;
+				} else {
+					mario->pEntity->velocity->y = 0.0f;
+				}
+			} else if (!buttonPressed(GLFW_KEY_W)) {
+				if (buttonPressed(GLFW_KEY_S)) {
+					mario->pEntity->velocity->y = -Physics::movementDelta;
+				} else {
+					mario->pEntity->velocity->y = 0.0f;
 				}
 			}
 		}
-		// if (!hasGroundBeneath) {
-		// 	mario->setState(Mario::JUMPING);
-		// }
+		if (buttonPressed(GLFW_KEY_A)) {
+			if (!buttonPressed(GLFW_KEY_D)) {
+				mario->pEntity->velocity->x = -Physics::movementDelta / 2.0f;
+			} else {
+				mario->pEntity->velocity->x = 0.0f;
+			}
+		} else if (!buttonPressed(GLFW_KEY_A)) {
+			if (buttonPressed(GLFW_KEY_D)) {
+				mario->pEntity->velocity->x = Physics::movementDelta / 2.0f;
+			} else {
+				mario->pEntity->velocity->x = 0.0f;
+			}
+		}
 	}
+
 
 	lastTime = glfwGetTime();
 }
@@ -168,42 +295,12 @@ Collision PhysEngine::checkMarioCollision(Engine::Mario* mario, Engine::TerrainB
 }
 
 Collision PhysEngine::checkMarioTouch(Engine::Mario* mario, Engine::TerrainBlock* terrainBlock) {
-	Math::vec2<GLfloat> upDownCompass[] = {
-		Math::vec2<GLfloat>(0.0f, 1.0f),	// up
-		Math::vec2<GLfloat>(0.0f, -1.0f)	// down
-	};
-	bool x_collided = (mario->position->x <= terrainBlock->position->x + terrainBlock->width && mario->position->x + mario->width >= terrainBlock->position->x);
-	bool y_collided = mario->position->y + mario->height >= terrainBlock->position->y && mario->position->y <= terrainBlock->position->y + terrainBlock->height;
-
-	bool x_touched = false;
-
-	if ((mario->position->x + mario->width >= terrainBlock->position->x &&
-		mario->position->x + mario->width <= terrainBlock->position->x + collisionBias)) {
-		mario->position->x =
-	}
+	// Math::vec2<GLfloat> upDownCompass[] = {
+	// 	Math::vec2<GLfloat>(0.0f, 1.0f),	// up
+	// 	Math::vec2<GLfloat>(0.0f, -1.0f)	// down
+	// };
 
 
-	bool x_touched =
-		||
-			(mario->position->x <= 0.0f && mario->position->x >= collisionBias)
-		||
-			(mario->position->x <= Renderer::Window::WINDOW_WIDTH + collisionBias && mario->position->x >= Renderer::Window::WINDOW_WIDTH);
-	bool y_up_touched = mario->position->y <= terrainBlock->position->y && mario->position->y >= terrainBlock->position->y - collisionBias;
-	if (mario->jumping) {
-		if (y_up_touched && x_collided) {
-			mario->position->y = terrainBlock->position->y;
-			mario->velocity->y = 0.0f;
-			mario->setState(AT_GROUND);
-		} else if (x_touched) {
-			mario->pEntity->velocity->x = 0.0f;
-			if (currentPhysLevel->level->keySet.find(GLFW_KEY_A) != currentPhysLevel->level->keySet.end()) {
-				currentPhysLevel->level->keySet.erase(currentPhysLevel->level->keySet.find(GLFW_KEY_A));
-			}
-			if (currentPhysLevel->level->keySet.find(GLFW_KEY_D) != currentPhysLevel->level->keySet.end()) {
-				currentPhysLevel->level->keySet.erase(currentPhysLevel->level->keySet.find(GLFW_KEY_D));
-			}
-		}
-	}
 }
 
 Direction PhysEngine::vectorDirection(Math::vec2<GLfloat> target)

@@ -118,72 +118,79 @@ void PlayGameState::processInput(GLFWwindow* window, int key, int scancode, int 
 	if (playState == OVER) {
 
 	} else {
-		GLfloat velocityChangeValue = Physics::movementDelta;
+		// GLfloat velocityChangeValue = Physics::movementDelta;
 		if (key == GLFW_KEY_ESCAPE && action == GLFW_PRESS) {
 			Game::changeState(new MenuGameState());
 		} else if (key == GLFW_KEY_D) {
 			if (action == GLFW_PRESS) {
 				gameSession->currentLevel->keySet.insert(GLFW_KEY_D);
-				if (gameSession->currentLevel->mario->atGround) {
-					gameSession->currentLevel->mario->pEntity->velocity->x += velocityChangeValue;
-				} else if (gameSession->currentLevel->mario->jumping | gameSession->currentLevel->mario->climbing) {
-					gameSession->currentLevel->mario->pEntity->velocity->x += 0.5f * velocityChangeValue;
-				}
+				// if (gameSession->currentLevel->mario->atGround) {
+				// 	gameSession->currentLevel->mario->pEntity->velocity->x += velocityChangeValue;
+				// } else if (gameSession->currentLevel->mario->jumping | gameSession->currentLevel->mario->climbing) {
+				// 	gameSession->currentLevel->mario->pEntity->velocity->x += 0.5f * velocityChangeValue;
+				// }
 			} else if (action == GLFW_RELEASE && gameSession->currentLevel->keySet.find(GLFW_KEY_D) != gameSession->currentLevel->keySet.end()) {
 				gameSession->currentLevel->keySet.erase(gameSession->currentLevel->keySet.find(GLFW_KEY_D));
-				if (gameSession->currentLevel->mario->atGround) {
-					gameSession->currentLevel->mario->pEntity->velocity->x -= velocityChangeValue;
-				} else if (gameSession->currentLevel->mario->jumping | gameSession->currentLevel->mario->climbing) {
-					gameSession->currentLevel->mario->pEntity->velocity->x -= 0.5f * velocityChangeValue;
-				}
+				// if (gameSession->currentLevel->mario->atGround) {
+				// 	gameSession->currentLevel->mario->pEntity->velocity->x -= velocityChangeValue;
+				// } else if (gameSession->currentLevel->mario->jumping | gameSession->currentLevel->mario->climbing) {
+				// 	gameSession->currentLevel->mario->pEntity->velocity->x -= 0.5f * velocityChangeValue;
+				// }
 			}
 		} else if (key == GLFW_KEY_A) {
 			if (action == GLFW_PRESS) {
 				gameSession->currentLevel->keySet.insert(GLFW_KEY_A);
-				if (gameSession->currentLevel->mario->atGround) {
-					gameSession->currentLevel->mario->pEntity->velocity->x -= velocityChangeValue;
-				} else if (gameSession->currentLevel->mario->jumping | gameSession->currentLevel->mario->climbing) {
-					gameSession->currentLevel->mario->pEntity->velocity->x -= 0.5f * velocityChangeValue;
-				}
+				// if (gameSession->currentLevel->mario->atGround) {
+				// 	gameSession->currentLevel->mario->pEntity->velocity->x -= velocityChangeValue;
+				// } else if (gameSession->currentLevel->mario->jumping | gameSession->currentLevel->mario->climbing) {
+				// 	gameSession->currentLevel->mario->pEntity->velocity->x -= 0.5f * velocityChangeValue;
+				// }
 			} else if (action == GLFW_RELEASE && gameSession->currentLevel->keySet.find(GLFW_KEY_A) != gameSession->currentLevel->keySet.end()) {
 				gameSession->currentLevel->keySet.erase(gameSession->currentLevel->keySet.find(GLFW_KEY_A));
-				if (gameSession->currentLevel->mario->atGround) {
-					gameSession->currentLevel->mario->pEntity->velocity->x += velocityChangeValue;
-				} else if (gameSession->currentLevel->mario->jumping | gameSession->currentLevel->mario->climbing) {
-					gameSession->currentLevel->mario->pEntity->velocity->x += 0.5f * velocityChangeValue;
-				}
+				// if (gameSession->currentLevel->mario->atGround) {
+				// 	gameSession->currentLevel->mario->pEntity->velocity->x += velocityChangeValue;
+				// } else if (gameSession->currentLevel->mario->jumping | gameSession->currentLevel->mario->climbing) {
+				// 	gameSession->currentLevel->mario->pEntity->velocity->x += 0.5f * velocityChangeValue;
+				// }
 			}
 		} else if (key == GLFW_KEY_W && gameSession->currentLevel->canClimb(gameSession->currentLevel->mario)) {
 			if (action == GLFW_PRESS) {
 				gameSession->currentLevel->keySet.insert(GLFW_KEY_W);
-				if (!gameSession->currentLevel->mario->climbing) {
-					gameSession->currentLevel->mario->setState(Mario::CLIMBING);
-					gameSession->currentLevel->mario->pEntity->velocity->x = 0.0f;
-					gameSession->currentLevel->mario->pEntity->velocity->y = 0.5f * velocityChangeValue;
-				} else {
-					gameSession->currentLevel->mario->pEntity->velocity->y += 0.5f * velocityChangeValue;
-				}
-			} else if (action == GLFW_RELEASE && gameSession->currentLevel->mario->climbing) {
-				gameSession->currentLevel->mario->pEntity->velocity->y -= 0.5f * velocityChangeValue;
+				// if (!gameSession->currentLevel->mario->climbing) {
+				// 	gameSession->currentLevel->mario->setState(Mario::CLIMBING);
+				// 	gameSession->currentLevel->mario->pEntity->velocity->x = 0.0f;
+				// 	gameSession->currentLevel->mario->pEntity->velocity->y = 0.5f * velocityChangeValue;
+				// } else {
+				// 	gameSession->currentLevel->mario->pEntity->velocity->y += 0.5f * velocityChangeValue;
+				// }
+			} else if (action == GLFW_RELEASE && gameSession->currentLevel->keySet.find(GLFW_KEY_W) != gameSession->currentLevel->keySet.end() /* && gameSession->currentLevel->mario->climbing*/) {
+				gameSession->currentLevel->keySet.erase(gameSession->currentLevel->keySet.find(GLFW_KEY_W));
+				// gameSession->currentLevel->mario->pEntity->velocity->y -= 0.5f * velocityChangeValue;
 			}
 		} else if (key == GLFW_KEY_S && gameSession->currentLevel->canClimb(gameSession->currentLevel->mario)) {
 			if (action == GLFW_PRESS) {
 				gameSession->currentLevel->keySet.insert(GLFW_KEY_S);
-				if (!gameSession->currentLevel->mario->climbing) {
-					gameSession->currentLevel->mario->setState(Mario::CLIMBING);
-					gameSession->currentLevel->mario->pEntity->velocity->x = 0.0f;
-					gameSession->currentLevel->mario->pEntity->velocity->y = -0.5f * velocityChangeValue;
-				} else {
-					gameSession->currentLevel->mario->pEntity->velocity->y -= 0.5f * velocityChangeValue;
-				}
-			} else if (action == GLFW_RELEASE && gameSession->currentLevel->mario->climbing) {
-				gameSession->currentLevel->mario->pEntity->velocity->y += 0.5f * velocityChangeValue;
+				// if (!gameSession->currentLevel->mario->climbing) {
+				// 	gameSession->currentLevel->mario->setState(Mario::CLIMBING);
+				// 	gameSession->currentLevel->mario->pEntity->velocity->x = 0.0f;
+				// 	gameSession->currentLevel->mario->pEntity->velocity->y = -0.5f * velocityChangeValue;
+				// } else {
+				// 	gameSession->currentLevel->mario->pEntity->velocity->y -= 0.5f * velocityChangeValue;
+				// }
+			} else if (action == GLFW_RELEASE && gameSession->currentLevel->keySet.find(GLFW_KEY_S) != gameSession->currentLevel->keySet.end()/*&& gameSession->currentLevel->mario->climbing*/) {
+				gameSession->currentLevel->keySet.erase(gameSession->currentLevel->keySet.find(GLFW_KEY_S));
+				// gameSession->currentLevel->mario->pEntity->velocity->y += 0.5f * velocityChangeValue;
 			}
-		} else if (key == GLFW_KEY_SPACE &&!gameSession->currentLevel->mario->jumping && action == GLFW_PRESS) {
-			if (gameSession->currentLevel->mario->atGround) {
-				gameSession->currentLevel->mario->pEntity->velocity->y += 2.0f * velocityChangeValue;
+		} else if (key == GLFW_KEY_SPACE /*&&!gameSession->currentLevel->mario->jumping && action == GLFW_PRESS*/) {
+			if (action == GLFW_PRESS) {
+				gameSession->currentLevel->keySet.insert(GLFW_KEY_SPACE);
+			} else if (action == GLFW_RELEASE && gameSession->currentLevel->keySet.find(GLFW_KEY_SPACE) != gameSession->currentLevel->keySet.end()) {
+				gameSession->currentLevel->keySet.erase(gameSession->currentLevel->keySet.find(GLFW_KEY_SPACE));
 			}
-			gameSession->currentLevel->mario->setState(Mario::JUMPING);
+			// if (gameSession->currentLevel->mario->atGround) {
+			// 	gameSession->currentLevel->mario->pEntity->velocity->y += 2.0f * velocityChangeValue;
+			// }
+			// gameSession->currentLevel->mario->setState(Mario::JUMPING);
 		}
 	}
 
