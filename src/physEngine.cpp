@@ -161,15 +161,49 @@ void PhysEngine::moveEntities() {
 Collision PhysEngine::checkMarioCollision(Engine::Mario* mario, Engine::TerrainBlock* terrainBlock, bool exact) {
 	// bool x = (mario->position->x >= terrainBlock->position->x + 1.0f)
 
-	bool x = (mario->position->x >= terrainBlock->position->x && mario->position->x + mario->width >= terrainBlock->position->x) ||
-	 terrainBlock->position->x + terrainBlock->width >= mario->position->x;
-	bool y;
-	if (mario->jumping) {
-		y = mario->position->y <= terrainBlock->position->y + terrainBlock->height + (exact ? 0.0f : 1.0f) && mario->position->y >= terrainBlock->position->y + terrainBlock->height - (exact ? 0.0f : 1.0f);
-	} else if (mario->atGround) {
-		y = mario->position->y + mario->height >= terrainBlock->position->y && mario->position->y <= terrainBlock->position->y + terrainBlock->height;
-	}
+	bool x = (mario->position->x <= terrainBlock->position->x + terrainBlock->width && mario->position->x + mario->width >= terrainBlock->position->x);
+	bool y = mario->position->y + mario->height >= terrainBlock->position->y && mario->position->y <= terrainBlock->position->y + terrainBlock->height;
+
 	return Collision(x && y, vectorDirection(*mario->pEntity->velocity), terrainBlock, Math::vec2<GLfloat>(*mario->pEntity->velocity));
+}
+
+Collision PhysEngine::checkMarioTouch(Engine::Mario* mario, Engine::TerrainBlock* terrainBlock) {
+	Math::vec2<GLfloat> upDownCompass[] = {
+		Math::vec2<GLfloat>(0.0f, 1.0f),	// up
+		Math::vec2<GLfloat>(0.0f, -1.0f)	// down
+	};
+	bool x_collided = (mario->position->x <= terrainBlock->position->x + terrainBlock->width && mario->position->x + mario->width >= terrainBlock->position->x);
+	bool y_collided = mario->position->y + mario->height >= terrainBlock->position->y && mario->position->y <= terrainBlock->position->y + terrainBlock->height;
+
+	bool x_touched = false;
+
+	if ((mario->position->x + mario->width >= terrainBlock->position->x &&
+		mario->position->x + mario->width <= terrainBlock->position->x + collisionBias)) {
+		mario->position->x =
+	}
+
+
+	bool x_touched =
+		||
+			(mario->position->x <= 0.0f && mario->position->x >= collisionBias)
+		||
+			(mario->position->x <= Renderer::Window::WINDOW_WIDTH + collisionBias && mario->position->x >= Renderer::Window::WINDOW_WIDTH);
+	bool y_up_touched = mario->position->y <= terrainBlock->position->y && mario->position->y >= terrainBlock->position->y - collisionBias;
+	if (mario->jumping) {
+		if (y_up_touched && x_collided) {
+			mario->position->y = terrainBlock->position->y;
+			mario->velocity->y = 0.0f;
+			mario->setState(AT_GROUND);
+		} else if (x_touched) {
+			mario->pEntity->velocity->x = 0.0f;
+			if (currentPhysLevel->level->keySet.find(GLFW_KEY_A) != currentPhysLevel->level->keySet.end()) {
+				currentPhysLevel->level->keySet.erase(currentPhysLevel->level->keySet.find(GLFW_KEY_A));
+			}
+			if (currentPhysLevel->level->keySet.find(GLFW_KEY_D) != currentPhysLevel->level->keySet.end()) {
+				currentPhysLevel->level->keySet.erase(currentPhysLevel->level->keySet.find(GLFW_KEY_D));
+			}
+		}
+	}
 }
 
 Direction PhysEngine::vectorDirection(Math::vec2<GLfloat> target)

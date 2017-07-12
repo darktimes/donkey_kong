@@ -8,6 +8,7 @@
 #include "gameLevel.hpp"
 #include "actors.hpp"
 #include "math.hpp"
+##include "renderer.hpp"
 
 namespace Engine {
 	class Level;
@@ -38,6 +39,7 @@ namespace Physics {
 
 	};
 
+	GLfloat collisionBias = 2.0f;
 	class PhysEngine {
 		public:
 			static void init(Engine::Level* level);
@@ -57,7 +59,10 @@ namespace Physics {
 //			void resolveReflections();
 			void moveEntities();
 
+
+
 			Collision checkMarioCollision(Engine::Mario* mario, Engine::TerrainBlock* terrainBlock, bool exact);
+			Collision checkMarioTouch(Engine::Mario* mario, Engine::TerrainBlock* terrainBlock);
 			Direction vectorDirection(Math::vec2<GLfloat> target);
 			bool pause;
 	};
