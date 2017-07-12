@@ -1,5 +1,6 @@
 #include "gameMisc.hpp"
 #include "gameLevel.hpp"
+#include "utils.hpp"
 
 using namespace Engine;
 
@@ -8,7 +9,7 @@ GameSession::GameSession() : lifeCount(3), points(0), currentBonus(0) {
 }
 
 GameSession::~GameSession() {
-
+	delete currentLevel;
 }
 
 void GameSession::setLevel(Level* level) {

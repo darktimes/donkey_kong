@@ -4,15 +4,16 @@
 using namespace Engine;
 
 Animation::Animation(std::vector<std::string> textures, double fraction) {
-    this-> textures = textures;
-    this->fraction = fraction;
-    lastTick = 0;
-    currentIndex = 0;
+	this-> textures = textures;
+	this->fraction = fraction;
+	lastTick = 0;
+	currentIndex = 0;
+	stopped = true;
 }
 
 std::string Animation::getCurrentTexture() {
     double currentTime = glfwGetTime();
-    if (lastTick == 0) {
+    if (lastTick == 0 || stopped) {
         lastTick = currentTime;
         return textures[0];
     } else {

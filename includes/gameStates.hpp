@@ -7,6 +7,7 @@
 
 #include "math.hpp"
 #include "gameMisc.hpp"
+#include "physEngine.hpp"
 
 namespace Engine {
 
@@ -53,6 +54,7 @@ namespace Engine {
 		public:
 			enum PlayState {ACTIVE, OVER};
 			PlayGameState();
+			~PlayGameState();
 			void stateTick() override;
 			bool exits() override;
 			std::string getTag();
@@ -67,6 +69,5 @@ namespace Engine {
 			PlayState playState;
 			GameSession* gameSession;
 			double prevSecondStamp;
-			int prevKey;
 	};
 }

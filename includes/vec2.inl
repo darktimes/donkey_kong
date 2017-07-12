@@ -39,10 +39,12 @@ vec2<T>& vec2<T>::operator*(const T& k) {
 	this->y *= k;
 	return **this;
 }
+
 template<typename T>
-double vec2<T>::dot(const vec2<T>& v1, const vec2<T>& v2) {
+double dot(const vec2<T>& v1, const vec2<T>& v2) {
 	return acos(v1.x * v2.x + v1.y * v2.y);
 }
+
 
 
 /*
@@ -64,3 +66,7 @@ template<typename T>
 double vec2<T>::dot(const vec2<T>& v1, const vec2<T>& v2) {
 	return acos(v1.x * v2.x + v1.y * v2.y);
 }*/
+
+
+
+

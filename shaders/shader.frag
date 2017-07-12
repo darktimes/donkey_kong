@@ -59,6 +59,15 @@ float noise(vec3 x) {
 
 void main()
 {
-	FragColor = texture(texture1, TexCoord);
+	float alpha = 1.0f;
+	vec2 reversedTexCoord = vec2(TexCoord.x, 1.0f - TexCoord.y);
+	vec4 textColor = texture(texture1, reversedTexCoord);
+	float upTreshhold = 0.4f;
+	if (textColor.r >= upTreshhold && textColor.g >= upTreshhold && textColor.b >= upTreshhold) {
+		alpha = 0.0f;
+	}
+
+
+	FragColor = vec4(texture(texture1, reversedTexCoord).xyz, alpha);
 //	color = vec4(noise(TexCoord), noise(TexCoord), noise(TexCoord), 1.0f);
 }

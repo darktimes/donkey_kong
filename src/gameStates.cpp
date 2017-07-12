@@ -11,6 +11,7 @@
 
 using namespace Engine;
 using namespace Utils;
+using namespace Physics;
 
 const std::string MenuGameState::TAG = "MenuGameState";
 
@@ -34,7 +35,6 @@ void GameState::tick() {
 MenuGameState::MenuGameState() : GameState() {
 
 }
-
 
 
 void MenuGameState::stateTick() {
@@ -67,27 +67,35 @@ void MenuGameState::processInput(GLFWwindow* window, int key, int scancode, int 
 		Game::changeState(new PlayGameState());
 	}
 }
-		
+
 
 PlayGameState::PlayGameState() : GameState() {
 	gameSession = new GameSession();
 	gameSession->setLevel(new Level1(this));
 	playState = ACTIVE;
-	prevKey = -1;
 	prevSecondStamp = glfwGetTime();
+	PhysEngine::init(gameSession->currentLevel);
+}
+
+PlayGameState::~PlayGameState() {
+	delete gameSession;
 }
 
 void PlayGameState::stateTick() {
 	double currentTime = glfwGetTime();
-	if (currentTime - prevSecondStamp > 1.0f) {
-		prevSecondStamp += 1.0f;
-		gameSession->currentBonus -= 10.0f;
-	}
+
+	PhysEngine::tick();
+	gameSession->currentLevel->mario->handleAnimationState();
 
 	gameSession->currentLevel->draw();
 
+	if (currentTime - prevSecondStamp > 1.0f) {
+		prevSecondStamp += 1.0f;
+		if (gameSession->currentBonus != 0.0f) {
+			gameSession->currentBonus -= 10.0f;
+		}
+	}
 	Record* firstRecord = ResourceManager::recordTable->getRecords()[0];
-
 	Renderer::SpriteRenderer::renderText("Score", 0.0f, 780.0f, 0.5f, Math::vec3<GLfloat>(0.5f, 0.0f,0.0f));
 	Renderer::SpriteRenderer::renderText("Max.Record", 200.0f, 780.0f, 0.5f, Math::vec3<GLfloat>(0.5f, 0.0f, 0.0f));
 	Renderer::SpriteRenderer::renderText("Bonus", 450.0f, 780.0f, 0.5f, Math::vec3<GLfloat>(0.5f, 0.0f, 0.0f));
@@ -105,27 +113,80 @@ std::string PlayGameState::getTag() {
 }
 
 void PlayGameState::processInput(GLFWwindow* window, int key, int scancode, int action, int mode) {
-	
+
 
 	if (playState == OVER) {
-		
-	} else {
 
-/*
-		if (action == GLFW_RELEASE && prevKey != -1) {
-			if (prevKey == key) {
-				prevKey = -1;
-			}
-		}
-*/
-	
-	
+	} else {
+		GLfloat velocityChangeValue = Physics::movementDelta;
 		if (key == GLFW_KEY_ESCAPE && action == GLFW_PRESS) {
 			Game::changeState(new MenuGameState());
-		} else {
-			
+		} else if (key == GLFW_KEY_D) {
+			if (action == GLFW_PRESS) {
+				gameSession->currentLevel->keySet.insert(GLFW_KEY_D);
+				if (gameSession->currentLevel->mario->atGround) {
+					gameSession->currentLevel->mario->pEntity->velocity->x += velocityChangeValue;
+				} else if (gameSession->currentLevel->mario->jumping | gameSession->currentLevel->mario->climbing) {
+					gameSession->currentLevel->mario->pEntity->velocity->x += 0.5f * velocityChangeValue;
+				}
+			} else if (action == GLFW_RELEASE && gameSession->currentLevel->keySet.find(GLFW_KEY_D) != gameSession->currentLevel->keySet.end()) {
+				gameSession->currentLevel->keySet.erase(gameSession->currentLevel->keySet.find(GLFW_KEY_D));
+				if (gameSession->currentLevel->mario->atGround) {
+					gameSession->currentLevel->mario->pEntity->velocity->x -= velocityChangeValue;
+				} else if (gameSession->currentLevel->mario->jumping | gameSession->currentLevel->mario->climbing) {
+					gameSession->currentLevel->mario->pEntity->velocity->x -= 0.5f * velocityChangeValue;
+				}
+			}
+		} else if (key == GLFW_KEY_A) {
+			if (action == GLFW_PRESS) {
+				gameSession->currentLevel->keySet.insert(GLFW_KEY_A);
+				if (gameSession->currentLevel->mario->atGround) {
+					gameSession->currentLevel->mario->pEntity->velocity->x -= velocityChangeValue;
+				} else if (gameSession->currentLevel->mario->jumping | gameSession->currentLevel->mario->climbing) {
+					gameSession->currentLevel->mario->pEntity->velocity->x -= 0.5f * velocityChangeValue;
+				}
+			} else if (action == GLFW_RELEASE && gameSession->currentLevel->keySet.find(GLFW_KEY_A) != gameSession->currentLevel->keySet.end()) {
+				gameSession->currentLevel->keySet.erase(gameSession->currentLevel->keySet.find(GLFW_KEY_A));
+				if (gameSession->currentLevel->mario->atGround) {
+					gameSession->currentLevel->mario->pEntity->velocity->x += velocityChangeValue;
+				} else if (gameSession->currentLevel->mario->jumping | gameSession->currentLevel->mario->climbing) {
+					gameSession->currentLevel->mario->pEntity->velocity->x += 0.5f * velocityChangeValue;
+				}
+			}
+		} else if (key == GLFW_KEY_W && gameSession->currentLevel->canClimb(gameSession->currentLevel->mario)) {
+			if (action == GLFW_PRESS) {
+				gameSession->currentLevel->keySet.insert(GLFW_KEY_W);
+				if (!gameSession->currentLevel->mario->climbing) {
+					gameSession->currentLevel->mario->setState(Mario::CLIMBING);
+					gameSession->currentLevel->mario->pEntity->velocity->x = 0.0f;
+					gameSession->currentLevel->mario->pEntity->velocity->y = 0.5f * velocityChangeValue;
+				} else {
+					gameSession->currentLevel->mario->pEntity->velocity->y += 0.5f * velocityChangeValue;
+				}
+			} else if (action == GLFW_RELEASE && gameSession->currentLevel->mario->climbing) {
+				gameSession->currentLevel->mario->pEntity->velocity->y -= 0.5f * velocityChangeValue;
+			}
+		} else if (key == GLFW_KEY_S && gameSession->currentLevel->canClimb(gameSession->currentLevel->mario)) {
+			if (action == GLFW_PRESS) {
+				gameSession->currentLevel->keySet.insert(GLFW_KEY_S);
+				if (!gameSession->currentLevel->mario->climbing) {
+					gameSession->currentLevel->mario->setState(Mario::CLIMBING);
+					gameSession->currentLevel->mario->pEntity->velocity->x = 0.0f;
+					gameSession->currentLevel->mario->pEntity->velocity->y = -0.5f * velocityChangeValue;
+				} else {
+					gameSession->currentLevel->mario->pEntity->velocity->y -= 0.5f * velocityChangeValue;
+				}
+			} else if (action == GLFW_RELEASE && gameSession->currentLevel->mario->climbing) {
+				gameSession->currentLevel->mario->pEntity->velocity->y += 0.5f * velocityChangeValue;
+			}
+		} else if (key == GLFW_KEY_SPACE &&!gameSession->currentLevel->mario->jumping && action == GLFW_PRESS) {
+			if (gameSession->currentLevel->mario->atGround) {
+				gameSession->currentLevel->mario->pEntity->velocity->y += 2.0f * velocityChangeValue;
+			}
+			gameSession->currentLevel->mario->setState(Mario::JUMPING);
 		}
 	}
+
 }
 
 

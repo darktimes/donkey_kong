@@ -27,7 +27,23 @@ void ResourceManager::init() {
 	ResourceManager::loadShader(std::string("t1.v"), std::string("t1.f"), std::string(""), std::string("texture1_shader"));
 	ResourceManager::loadShader(std::string("shader.vert"), std::string("shader.frag"), std::string(""), std::string("projectionShader"));
 	ResourceManager::loadShader(std::string("textShader.vert"), std::string("textShader.frag"), std::string(""), std::string("textShader"));
-	ResourceManager::loadTexture(std::string("texture_brick"), false, std::string("texture_brick"));
+	ResourceManager::loadTexture(std::string("terrain_balk_16"), false, std::string("terrainBalk"));
+	ResourceManager::loadTexture(std::string("terrain_ladder_16"), false, std::string("terrainLadder"));
+	ResourceManager::loadTexture(std::string("barrel1_front_16"), false, std::string("barrelFront1"));
+	ResourceManager::loadTexture(std::string("barrel2_front_16"), false, std::string("barrelFront2"));
+	ResourceManager::loadTexture(std::string("barrel1_16"), false, std::string("barrel1"));
+	ResourceManager::loadTexture(std::string("barrel2_16"), false, std::string("barrel2"));
+	ResourceManager::loadTexture(std::string("barrel3_16"), false, std::string("barrel3"));
+	ResourceManager::loadTexture(std::string("barrel4_16"), false, std::string("barrel4"));
+	ResourceManager::loadTexture(std::string("runRight1_16"), false, std::string("runRight1"));
+	ResourceManager::loadTexture(std::string("runRight2_16"), false, std::string("runRight2"));
+	ResourceManager::loadTexture(std::string("runLeft1_16"), false, std::string("runLeft1"));
+	ResourceManager::loadTexture(std::string("runLeft2_16"), false, std::string("runLeft2"));
+	ResourceManager::loadTexture(std::string("jumpLeft_16"), false, std::string("jumpLeft"));
+	ResourceManager::loadTexture(std::string("jumpRight_16"), false, std::string("jumpRight"));
+	ResourceManager::loadTexture(std::string("climb1_16"), false, std::string("climb1"));
+	ResourceManager::loadTexture(std::string("climb2_16"), false, std::string("climb2"));
+
 	ResourceManager::loadFont("open-sans");
 	ResourceManager::recordTable->readTable();
 }

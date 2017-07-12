@@ -14,7 +14,7 @@ Record::Record(int score, std::string playerName) : score(score), playerName(pla
 }
 
 RecordTable::RecordTable() {
-	
+
 }
 
 RecordTable::~RecordTable() {
@@ -27,7 +27,7 @@ void RecordTable::readTable() {
 	std::string file_path = *retreive_binary_path();
 	file_path += *RecordTable::RECORD_TABLE_FILE;
 	std::string result;
-	std::ifstream fileStream;	
+	std::ifstream fileStream;
 	fileStream.exceptions(std::ifstream::badbit | std::ifstream::failbit);
 	try {
 		fileStream.open(file_path.c_str());
@@ -38,7 +38,7 @@ void RecordTable::readTable() {
 		initDefaults();
 	}
 
-	
+
 	if (!parseStringAsRecords(result)) {
 		Logger::w("RecordTable will be init-ed with default due to parse-error.");
 		initDefaults();
@@ -64,20 +64,20 @@ bool RecordTable::parseStringAsRecords(std::string& str) {
 	int currentScore;
 	unsigned i = 0;
 
-	while (end != std::string::npos && i < (RecordTable::RECORD_COUNT * 2)) {		
+	while (end != std::string::npos && i < (RecordTable::RECORD_COUNT * 2)) {
 		std::string current_block = str.substr(start, end - start);
 		start = end + delim.length();
 	        end = str.find(delim, start);
 		if ( (i % 2) == 0) {
 			try {
-				currentScore = std::stoi(current_block); 
+				currentScore = std::stoi(current_block);
 			} catch (...) {
 				return false;
 			}
 		} else {
 			records.push_back(new Record(currentScore, current_block));
 		}
-		i++;		
+		i++;
 	}
 	if (records.size() != RecordTable::RECORD_COUNT) {
 		return false;
@@ -97,4 +97,3 @@ void RecordTable::initDefaults() {
 std::vector<Record*> RecordTable::getRecords() {
 	return records;
 }
-
