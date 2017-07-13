@@ -1,6 +1,7 @@
 #include "actors.hpp"
 #include "resourceManager.hpp"
 #include "utils.hpp"
+#include "physEngine.hpp"
 
 using namespace Engine;
 using namespace Math;
@@ -79,9 +80,10 @@ Mario::Mario(Math::vec2<GLfloat>* pos): AnimatedActor(TerrainBlock::blockEdgeLen
 	face = FACING_RIGHT;
 	pEntity = new PhysEntity(this, 50.0f, true);
 	setState(JUMPING);
+	lostLifeTimer = 0.0f;
 }
 
-void Mario::setState(MarioState state) {
+void AnimatedActor::setState(ActorState state) {
 	switch (state) {
 		case CLIMBING: jumping = false; atGround = false; climbing = true; break;
 		case JUMPING: jumping = true; atGround = false; climbing = false; break;
@@ -146,6 +148,20 @@ Barrel::Barrel(Math::vec2<GLfloat>* pos): AnimatedActor(TerrainBlock::blockEdgeL
 		addAnimation(new Animation(std::vector<std::string> {"barrelFront1", "barrelFront2"}), "animBarrelRollFront");
 		animState = ROLLING;
 		pEntity = new PhysEntity(this, 25.0f, true);
+		pEntity->velocity->x = 1.5f * Physics::movementDelta;
+		setState(JUMPING);
+		face = FACING_RIGHT;
+		scoreTimer = 0.0f;
+}
+
+void Barrel::handleAnimationState() {
+	if (climbing) {
+		animState = ROLLING_FRONT;
+		getCurrentAnimation()->stopped = false;
+	} else {
+		getCurrentAnimation()->stopped = false;
+		animState = ROLLING;
+	}
 }
 
 Animation* Barrel::getCurrentAnimation() {

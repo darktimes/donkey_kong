@@ -32,6 +32,7 @@ namespace Engine {
 			std::vector<TerrainBlock*> terrainBlocks;
 //			std::vector<TerrainBlock*> ladderBlocks;
 			std::vector<Ladder*> ladders;
+			std::vector<Barrel*> barrels;
 
 //			std::vector<AnimatedActor> actors;
 			Mario* mario;

@@ -28,15 +28,10 @@ Level::~Level() {
 
 
 bool Level::canClimb(AnimatedActor* actor) {
-
+	return true;
 }
 
 void Level::draw() {
-	for (TerrainBlock* terrainBlock: terrainBlocks) {
-		terrainBlock->draw();
-	}
-
-	mario->draw();
 
 }
 
@@ -216,10 +211,21 @@ Level1::Level1(IPlayGameStateCallbacks* cbs): Level(2000, 28, 40, cbs) {
 			)
 	);
 
+	terrainBlocks.push_back(new TerrainBlock(TerrainLadder, new Math::vec2<GLfloat>(TerrainBlock::blockEdgeLength * 24.0f, TerrainBlock::blockEdgeLength * 17 + 5 * seventh)));
+	terrainBlocks.push_back(new TerrainBlock(TerrainLadder, new Math::vec2<GLfloat>(TerrainBlock::blockEdgeLength * 24.0f, TerrainBlock::blockEdgeLength * 18 + 5 * seventh)));
+	terrainBlocks.push_back(new TerrainBlock(TerrainLadder, new Math::vec2<GLfloat>(TerrainBlock::blockEdgeLength * 24.0f, TerrainBlock::blockEdgeLength * 19 + 5 * seventh)));
+	terrainBlocks.push_back(new TerrainBlock(TerrainLadder, new Math::vec2<GLfloat>(TerrainBlock::blockEdgeLength * 24.0f, TerrainBlock::blockEdgeLength * 20 + 5 * seventh)));
+	terrainBlocks.push_back(new TerrainBlock(TerrainLadder, new Math::vec2<GLfloat>(TerrainBlock::blockEdgeLength * 24.0f, TerrainBlock::blockEdgeLength * 21 + 5 * seventh)));
+	ladders.push_back(
+		new Ladder(
+			Math::vec2<GLfloat>(TerrainBlock::blockEdgeLength * 24.0f, TerrainBlock::blockEdgeLength * 17 + 5.0f * seventh),
+			Math::vec2<GLfloat>(TerrainBlock::blockEdgeLength, TerrainBlock::blockEdgeLength * 5)
+			)
+	);
+
 	terrainBlocks.push_back(new TerrainBlock(TerrainLadder, new Math::vec2<GLfloat>(TerrainBlock::blockEdgeLength * 21.0f, TerrainBlock::blockEdgeLength * 15 + 5 * seventh)));
 	terrainBlocks.push_back(new TerrainBlock(TerrainLadder, new Math::vec2<GLfloat>(TerrainBlock::blockEdgeLength * 21.0f, TerrainBlock::blockEdgeLength * 16 + 5 * seventh)));
 	terrainBlocks.push_back(new TerrainBlock(TerrainLadder, new Math::vec2<GLfloat>(TerrainBlock::blockEdgeLength * 21.0f, TerrainBlock::blockEdgeLength * 17 + 5 * seventh)));
-
 	ladders.push_back(
 		new Ladder(
 			Math::vec2<GLfloat>(TerrainBlock::blockEdgeLength * 21.0f, TerrainBlock::blockEdgeLength * 15 + 5.0f * seventh),

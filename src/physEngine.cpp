@@ -82,6 +82,11 @@ void PhysEngine::moveEntities() {
 	mario->position->x += mario->pEntity->velocity->x * elapsedTime;
 	mario->position->y += mario->pEntity->velocity->y * elapsedTime;
 
+	if (mario->position->x >= 220.f && mario->position->x + mario->width <= 280.0f &&
+		mario->position->y >= 520.f && mario->position->y + mario->height <= 550.0f) {
+			currentPhysLevel->level->playGameStateCallbacks->finishLevel();
+		}
+
 	bool x_touched_left_window = mario->position->x <= 0.0f && mario->position->x >= -collisionBias;
 	bool x_touched_right_window = mario->position->x + mario->width <= Renderer::Window::WINDOW_WIDTH + collisionBias && mario->position->x + mario->width >= Renderer::Window::WINDOW_WIDTH;
 
@@ -120,10 +125,9 @@ void PhysEngine::moveEntities() {
 			canClimb = true;
 		}
 	}
-Logger::i(std::to_string(canClimb));
 	if (mario->jumping) {
 		if (groundBlock) {
-			mario->setState(Mario::AT_GROUND);
+			mario->setState(AnimatedActor::AT_GROUND);
 			mario->pEntity->velocity->y = 0.0f;
 			mario->position->y = groundBlock->position->y + groundBlock->height;
 			if (mario->pEntity->velocity->x > 0) {
@@ -173,7 +177,7 @@ Logger::i(std::to_string(canClimb));
 			mario->pEntity->velocity->y -= TerrainBlock::blockEdgeLength * 9.8f * elapsedTime;
 			if (buttonPressed(GLFW_KEY_W) || buttonPressed(GLFW_KEY_S)) {
 				if (canClimb) {
-					mario->setState(Mario::CLIMBING);
+					mario->setState(AnimatedActor::CLIMBING);
 					mario->pEntity->velocity->x = 0;
 					mario->pEntity->velocity->y = 0;
 				}
@@ -233,24 +237,24 @@ Logger::i(std::to_string(canClimb));
 			}
 			if (buttonPressed(GLFW_KEY_W) || buttonPressed(GLFW_KEY_S)) {
 				if (canClimb) {
-					mario->setState(Mario::CLIMBING);
+					mario->setState(AnimatedActor::CLIMBING);
 					mario->pEntity->velocity->x = 0;
 					mario->pEntity->velocity->y = 0;
 				}
 			}
 		} else {
-			mario->setState(Mario::JUMPING);
+			mario->setState(AnimatedActor::JUMPING);
 		}
 	} else if (mario->climbing) {
 		if (!canClimb) {
 			if (groundBlock) {
-				mario->setState(Mario::AT_GROUND);
+				mario->setState(AnimatedActor::AT_GROUND);
 			} else {
-				mario->setState(Mario::JUMPING);
+				mario->setState(AnimatedActor::JUMPING);
 			}
 		} else {
 			if (groundBlock) {
-				mario->setState(Mario::AT_GROUND);
+				mario->setState(AnimatedActor::AT_GROUND);
 			}
 			if (buttonPressed(GLFW_KEY_W)) {
 				if (!buttonPressed(GLFW_KEY_S)) {
@@ -282,26 +286,132 @@ Logger::i(std::to_string(canClimb));
 	}
 
 
+	for (Barrel* barrel : currentPhysLevel->level->barrels) {
+		barrel->position->x += barrel->pEntity->velocity->x * elapsedTime;
+		barrel->position->y += barrel->pEntity->velocity->y * elapsedTime;
+
+		bool x_touched_left_window = barrel->position->x <= 0.0f && barrel->position->x >= -collisionBias;
+		bool x_touched_right_window = barrel->position->x + barrel->width <= Renderer::Window::WINDOW_WIDTH + collisionBias && barrel->position->x + barrel->width >= Renderer::Window::WINDOW_WIDTH;
+
+		if ((mario->position->y > barrel->position->y + barrel->height) && mario->jumping && (mario->position->y - barrel->position->y - barrel->height) < TerrainBlock::blockEdgeLength * 2.0f && (mario->position->y - barrel->position->y - barrel->height) > 0  &&
+		(lastTime - barrel->scoreTimer) >= 5.0f && mario->position->x <= barrel->position->x + barrel->width && mario->position->x + mario->width >= barrel->position->x) {
+			barrel->scoreTimer = lastTime;
+			currentPhysLevel->level->playGameStateCallbacks->addPoints(100);
+		}
+
+		if (mario->position->x <= barrel->position->x + barrel->width && mario->position->x + mario->width >= barrel->position->x &&
+		mario->position->y <= barrel->position->y + barrel->height && mario->position->y + mario->height >= barrel->position->y) {
+			currentPhysLevel->level->playGameStateCallbacks->decreaseLife();
+		}
+		// std::vector<Collision> marioCollisions;
+		// bool hasGroundBeneath = false;
+
+		TerrainBlock* groundBlock = nullptr;
+
+		srand((int)(glfwGetTime() * 1389));
+
+		for (TerrainBlock* terrainBlock: currentPhysLevel->level->terrainBlocks) {
+			if (terrainBlock->type == Engine::TerrainBalk) {
+				bool x_collided = (barrel->position->x <= terrainBlock->position->x + terrainBlock->width && barrel->position->x + barrel->width >= terrainBlock->position->x);
+				bool y_touched_up = barrel->position->y <= terrainBlock->position->y + terrainBlock->height && barrel->position->y >= terrainBlock->position->y + terrainBlock->height - collisionBias;
+				if (y_touched_up && x_collided) {
+					groundBlock = terrainBlock;
+				}
+			}
+		}
+
+		Ladder* climbLadder = nullptr;
+		for (Ladder* ladder : currentPhysLevel->level->ladders) {
+			bool x_collided = barrel->position->x + barrel->width * 3 / 4.0f <= ladder->location.x + ladder->dimensions.x && barrel->position->x + barrel->width / 4.0f >= ladder->location.x;
+			bool y_collided = barrel->position->y >= ladder->location.y && barrel->position->y + barrel->height <= ladder->location.y + ladder->dimensions.y;
+			if (x_collided && y_collided && (barrel->position->y - ladder->location.y) > 20.0f) {
+				climbLadder = ladder;
+			}
+		}
+
+		if (barrel->jumping) {
+			barrel->pEntity->velocity->y -= TerrainBlock::blockEdgeLength * 9.8f * elapsedTime;
+			if (groundBlock) {
+				barrel->pEntity->velocity->y = 0.0f;
+				barrel->setState(AnimatedActor::AT_GROUND);
+				barrel->position->y = groundBlock->position->y + groundBlock->height;
+			} else {
+				if (x_touched_left_window) {
+					barrel->position->x = 0.0f;
+					barrel->pEntity->velocity->x = -barrel->pEntity->velocity->x;
+				} else if (x_touched_right_window) {
+					barrel->position->x = Renderer::Window::WINDOW_WIDTH - barrel->width;
+					barrel->pEntity->velocity->x = -barrel->pEntity->velocity->x;
+				}
+				if (climbLadder) {
+					if (rand() % 40 == 0) {
+						barrel->setState(AnimatedActor::CLIMBING);
+						barrel->pEntity->velocity->x = 0.0f;
+						if (barrel->face == AnimatedActor::FACING_RIGHT) {
+							barrel->face = AnimatedActor::FACING_LEFT;
+						} else  {
+							barrel->face = AnimatedActor::FACING_RIGHT;
+						}
+					}
+				}
+			}
+		} else if (barrel->atGround) {
+			if (!groundBlock) {
+				barrel->setState(AnimatedActor::JUMPING);
+			} else {
+				if (x_touched_left_window) {
+					barrel->position->x = 0.0f;
+					barrel->pEntity->velocity->x = -barrel->pEntity->velocity->x;
+				} else if (x_touched_right_window) {
+					barrel->position->x = Renderer::Window::WINDOW_WIDTH - barrel->width;
+					barrel->pEntity->velocity->x = -barrel->pEntity->velocity->x;
+				}
+				if (climbLadder) {
+					if (rand() % 40 == 0) {
+						barrel->setState(AnimatedActor::CLIMBING);
+						barrel->pEntity->velocity->x = 0.0f;
+						if (barrel->face == AnimatedActor::FACING_RIGHT) {
+							barrel->face = AnimatedActor::FACING_LEFT;
+						} else  {
+							barrel->face = AnimatedActor::FACING_RIGHT;
+						}
+					}
+				}
+			}
+		} else if (barrel->climbing) {
+			if ((!climbLadder)) {
+				if (groundBlock) {
+					barrel->setState(AnimatedActor::AT_GROUND);
+					barrel->pEntity->velocity->y = 0.0f;
+					if (barrel->face == AnimatedActor::FACING_RIGHT) {
+						barrel->pEntity->velocity->x = Physics::movementDelta * 1.5f;
+					} else {
+						barrel->pEntity->velocity->x = -Physics::movementDelta * 1.5f;
+					}
+				} else {
+					barrel->pEntity->velocity->y = -Physics::movementDelta;
+				}
+			} else if (groundBlock && (barrel->position->y - climbLadder->location.y) <= ceil(TerrainBlock::blockEdgeLength / 7.0f)) {
+				barrel->setState(AnimatedActor::AT_GROUND);
+				barrel->pEntity->velocity->y = 0.0f;
+				if (barrel->face == AnimatedActor::FACING_RIGHT) {
+					barrel->pEntity->velocity->x = Physics::movementDelta * 1.5f;
+				} else {
+					barrel->pEntity->velocity->x = -Physics::movementDelta * 1.5f;
+				}
+			} else {
+				barrel->pEntity->velocity->y = -Physics::movementDelta;
+			}
+		}
+		if (barrel->position->y < 0) {
+			currentPhysLevel->level->barrels.erase(std::find(currentPhysLevel->level->barrels.begin(), currentPhysLevel->level->barrels.end(), barrel));
+		}
+
+	}
+
 	lastTime = glfwGetTime();
 }
 
-Collision PhysEngine::checkMarioCollision(Engine::Mario* mario, Engine::TerrainBlock* terrainBlock, bool exact) {
-	// bool x = (mario->position->x >= terrainBlock->position->x + 1.0f)
-
-	bool x = (mario->position->x <= terrainBlock->position->x + terrainBlock->width && mario->position->x + mario->width >= terrainBlock->position->x);
-	bool y = mario->position->y + mario->height >= terrainBlock->position->y && mario->position->y <= terrainBlock->position->y + terrainBlock->height;
-
-	return Collision(x && y, vectorDirection(*mario->pEntity->velocity), terrainBlock, Math::vec2<GLfloat>(*mario->pEntity->velocity));
-}
-
-Collision PhysEngine::checkMarioTouch(Engine::Mario* mario, Engine::TerrainBlock* terrainBlock) {
-	// Math::vec2<GLfloat> upDownCompass[] = {
-	// 	Math::vec2<GLfloat>(0.0f, 1.0f),	// up
-	// 	Math::vec2<GLfloat>(0.0f, -1.0f)	// down
-	// };
-
-
-}
 
 Direction PhysEngine::vectorDirection(Math::vec2<GLfloat> target)
 {

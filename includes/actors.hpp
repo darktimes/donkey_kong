@@ -55,12 +55,19 @@ namespace Engine {
 
 	class AnimatedActor: public Actor {
 		public:
+			enum ActorState {AT_GROUND, JUMPING, CLIMBING};
 			Physics::PhysEntity* pEntity;
 			AnimatedActor(GLfloat width, GLfloat height, Math::vec2<GLfloat>* pos);
 			std::string getTextureName() override;
 			virtual ~AnimatedActor();
 			virtual Animation* getCurrentAnimation() = 0;
-
+			virtual void handleAnimationState() = 0;
+			enum FaceDirection {FACING_LEFT, FACING_RIGHT};
+			FaceDirection face;
+			void setState(ActorState state);
+			bool atGround;
+			bool jumping;
+			bool climbing;
 		protected:
 			std::map<std::string, Animation*> animations;
 			void addAnimation(Animation* animation, std::string name);
@@ -70,18 +77,15 @@ namespace Engine {
 
 	class Mario: public AnimatedActor {
 		public:
-			enum MarioState {AT_GROUND, JUMPING, CLIMBING};
+
 			enum MarioAnimState {ANIM_RUNNING_LEFT, ANIM_RUNNING_RIGHT, ANIM_JUMPING_LEFT, ANIM_JUMPING_RIGHT, ANIM_CLIMBING};
-			enum FaceDirection {FACING_LEFT, FACING_RIGHT};
+
 			Mario(Math::vec2<GLfloat>* pos);
 			MarioAnimState animState;
 			Animation* getCurrentAnimation() override;
-			void setState(MarioState state);
-			void handleAnimationState();
-			bool atGround;
-			bool jumping;
-			bool climbing;
-			FaceDirection face;
+			void handleAnimationState() override;
+			double lostLifeTimer;
+
 	};
 
 	class Barrel: public AnimatedActor {
@@ -90,6 +94,8 @@ namespace Engine {
 			enum BarrelAnimState {ROLLING, ROLLING_FRONT};
 			Barrel(Math::vec2<GLfloat>* pos);
 			BarrelAnimState animState;
+			void handleAnimationState() override;
 			Animation* getCurrentAnimation() override;
+			double scoreTimer;
 	};
 }

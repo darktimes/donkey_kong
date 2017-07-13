@@ -62,10 +62,6 @@ namespace Physics {
 //			void resolveReflections();
 			void moveEntities();
 
-
-
-			Collision checkMarioCollision(Engine::Mario* mario, Engine::TerrainBlock* terrainBlock, bool exact);
-			Collision checkMarioTouch(Engine::Mario* mario, Engine::TerrainBlock* terrainBlock);
 			Direction vectorDirection(Math::vec2<GLfloat> target);
 			bool pause;
 	};

@@ -30,7 +30,7 @@ namespace Engine {
 
 	class MenuGameState : public GameState {
 		static const std::string TAG;
-	
+
 		public:
 			MenuGameState();
 			void stateTick() override;
@@ -38,7 +38,7 @@ namespace Engine {
 			std::string getTag() override;
 			void processInput(GLFWwindow* window, int key, int scancode, int action, int mode) override;
 	};
-	
+
 	class IPlayGameStateCallbacks {
 		public:
 			virtual double getElapsedTime() = 0;
@@ -47,27 +47,32 @@ namespace Engine {
 			virtual void finishLevel() = 0;
 			~IPlayGameStateCallbacks() {};
 	};
-	
+
 	class PlayGameState : public GameState, public IPlayGameStateCallbacks {
-		static const std::string TAG; 
-	
+		static const std::string TAG;
+
 		public:
-			enum PlayState {ACTIVE, OVER};
+			enum PlayState {ACTIVE, OVER, FINISHED};
 			PlayGameState();
 			~PlayGameState();
 			void stateTick() override;
 			bool exits() override;
 			std::string getTag();
 			void processInput(GLFWwindow* window, int key, int scancode, int action, int mode) override;
-			
+
 			double getElapsedTime() override;
 			void decreaseLife() override;
 			void addPoints(int points) override;
 			void finishLevel() override;
-			
+			std::string newPlayerName;
+
+
 		private:
 			PlayState playState;
 			GameSession* gameSession;
+			bool god;
 			double prevSecondStamp;
+			double timer2;
+			double timer2_trh;
 	};
 }

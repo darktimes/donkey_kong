@@ -23,6 +23,25 @@ RecordTable::~RecordTable() {
 	}
 }
 
+void RecordTable::addRecord(Record* record) {
+	for (std::vector<Record*>::iterator it = records.begin() ; it != records.end(); ++it) {
+		if (record->score >= (*it)->score) {
+			records.insert(it, record);
+			break;
+		}
+	}
+	records.pop_back();
+}
+
+bool RecordTable::isNewScore(int points) {
+	for (std::vector<Record*>::iterator it = records.begin() ; it != records.end(); ++it) {
+		if (points >= (*it)->score) {
+			return true;
+		}
+	}
+	return false;
+}
+
 void RecordTable::readTable() {
 	std::string file_path = *retreive_binary_path();
 	file_path += *RecordTable::RECORD_TABLE_FILE;
