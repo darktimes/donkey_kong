@@ -1,39 +1,38 @@
-#pragma once 
+
+#pragma once
 
 #include <GL/glew.h>
 #include <GLFW/glfw3.h>
-#include <iostream>
-#include <stdexcept>
-#include <string.h>
 #include <memory>
-#include <vector>
 
-#include "records.hpp"
-#include "renderer.hpp"
+#include "recordTable.hpp"
 #include "gameStates.hpp"
 
-namespace Engine {
+/**
+* Game class wraps all functionality of the game, implemented as singleton.
+*/
+class Game {
+public:
+  enum GameMode {TEST = 0, DEFAULT = 1};
+  static Game& getInstance();
 
-	
-	class Game {
-		public:
-			static void init(/*renderer::ERendererType ERendererType*/);
-			static void terminate();
-			static void run();
-			static void processInput(GLFWwindow*, int key, int scancode, int action, int mode);
-			static Renderer::Window* getGameWindow();
-						
-			static void changeState(GameState* state);
+  Game(Game const&)            = delete;
+  void operator=(Game const&)  = delete;
 
-		private:
-			GameState* currentGameState;
-			Renderer::Window* gameWindow;
-			static Game* instance;
-			
-			Game();
-			virtual ~Game();
+  void init(GameMode);
+  void run();
+  void test();
+  void terminate();
+  void changeState(GameState*);
 
-	};
-}
+  static void processInputStaticWrapper(GLFWwindow* window, int key,
+     int scancode, int action, int mode);
+
+  RecordTable recordTable;
+  GameMode gameMode;
+private:
+  std::unique_ptr<GameState> currentGameState;
 
 
+  Game() {}
+};

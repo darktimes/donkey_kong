@@ -3,85 +3,57 @@
 
 namespace Math {
 
-	template<typename T = float>
-	struct point {
-		T x;
-		T y;
-		point(T x, T y);
+	struct vec2f {
+		float x;
+		float y;
 
-		point<T>& operator+(const point<T>& p);
-		point<T>& operator-(const point<T>& p);
+		vec2f();
+		vec2f(float x, float y);
+		vec2f(const vec2f& other);
 
-		bool inline operator==(const point<T>& p);
-		bool inline operator!=(const point<T>& p);
+		float calcLength() const;
+		vec2f& normalize();
+		vec2f& operator+(const vec2f& v);
+		vec2f& operator-(const vec2f& v);
+		vec2f& operator*(float k);
 
-	};
-	//point template functions
-	#include "point.inl"
-
-	template<typename T = float>
-	struct vec2 {
-
-		T x;
-		T y;
-		vec2(T x, T y);
-
-		vec2(const vec2<T>& other);
-
-		double calcLength();
-		vec2<T>* normalize();
-		vec2<T>& operator+(const vec2& v);
-		vec2<T>& operator-(const vec2& v);
-		vec2<T>& operator*(const T& k);
+		float dot(const vec2f& other);
 	};
 
-	template<typename T = float>
-	double dot(const vec2<T>& v1, const vec2<T>& v2);
+	struct vec2i {
+		int x;
+		int y;
 
-	#include "vec2.inl"
-
-
-	template<typename T = float>
-	struct vec3 {
-		vec3(T x, T y, T z);
-		vec3(const vec3<T>& other);
-		T x;
-		T y;
-		T z;
-
-		double calcLength();
-		vec3<T>* normalize();
-
-		vec3<T>& operator+(const vec3<T>& v);
-		vec3<T>& operator-(const vec3<T>& v);
-		vec3<T>& operator*(const T& v);
-
-		double dot(const vec3<T>& v);
-		vec3<T> cross(const vec3<T>& v);
+		vec2i();
+		vec2i(int x, int y);
 	};
-	//vec3 template functions
-	#include "vec3.inl"
-	/*
 
-	template<typename T = float>
-	struct vec4 {
-		vec4(T x, T y, T z, T w);
-		vec4(const vec4<T>& other);
-		T x;
-		T y;
-		T z;
-		T w;
+	struct vec2ui {
+		unsigned x;
+		unsigned y;
 
-		double calcLength();
-		vec4<T>* normalize();
-		friend vec4<T> operator+(const vec4<T>& v1, const vec4<T>& v2);
-		friend vec4<T> operator-(const vec4<T>& v1, const vec4<T>& v2);
-		friend vec4<T> operator*(const vec4<T>& v1, const T& k);
-		friend double dot(const vec4<T>& v1, const vec4<T>& v2);
-		friend vec4<T> cross(const vec4<T>& v1, const vec4<T>& v2);
+		vec2ui();
+		vec2ui(unsigned x, unsigned y);
 	};
-	//vec4 template functions
-	#include "vec4.inl"*/
+
+	struct vec3f {
+		vec3f();
+		vec3f(float x, float y, float z);
+		vec3f(const vec3f& other);
+		float x;
+		float y;
+		float z;
+
+		float calcLength() const;
+		vec3f& normalize();
+
+		vec3f& operator+(const vec3f&);
+		vec3f& operator-(const vec3f&);
+		vec3f& operator*(float);
+
+		float dot(const vec3f& v) const;
+		vec3f cross(const vec3f& v) const;
+	};
 
 	struct mat4 {
 		float data[4][4] = {
@@ -91,12 +63,13 @@ namespace Math {
 			{0.0f, 0.0f, 0.0f, 1.0f},
 		};
 		mat4();
+		mat4& scale(float k);
+		mat4& scaleX(float k);
+		mat4& scaleY(float k);
+		mat4& translate(vec2f v);
+		mat4& rotate(float rad);
 	};
 
 	mat4 ortho(float l, float width, float b, float height, float n, float f);
-	mat4 scale(mat4 m, float k);
-	mat4 translate(mat4 m, vec2<float> v);
-	mat4 rotate(mat4, float rad);
-
 
 }

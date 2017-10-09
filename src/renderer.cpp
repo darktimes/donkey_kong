@@ -1,171 +1,133 @@
-#include <stdexcept>
+#include <algorithm>
 #include "renderer.hpp"
+#include "openGlRenderer.hpp"
+#include "vulkanRenderer.hpp"
 #include "utils.hpp"
-#include "resourceManager.hpp"
-#include "game.hpp"
 
-using namespace Renderer;
+using namespace Math;
+using namespace Rendering;
 using namespace Utils;
 
+std::unique_ptr<Renderer> Renderer::instance = nullptr;
+RendererType Renderer::prefRendererType = NOT_SET;
 
-const float Window::WINDOW_WIDTH = 560.0f;
-const float Window::WINDOW_HEIGHT = 800.0f;
-
-std::map<std::string, int> SpriteRenderer::sprites;
-
-unsigned int SpriteRenderer::textVBO, SpriteRenderer::textVAO, SpriteRenderer::textEBO;
-
-Window::Window(int width, int height, std::string wnd_title) {
-	this->width = width;
-	this->height = height;
-	this->wnd_title = wnd_title;
-
-	glfwWindowHint(GLFW_CONTEXT_VERSION_MAJOR, 3);
-	glfwWindowHint(GLFW_CONTEXT_VERSION_MINOR, 3);
-	glfwWindowHint(GLFW_OPENGL_PROFILE, GLFW_OPENGL_CORE_PROFILE);
-	glfwWindowHint(GLFW_RESIZABLE, GL_FALSE);
-
-	windowHandle = glfwCreateWindow(width, height, wnd_title.c_str(), nullptr, nullptr);
-	
-	if (windowHandle == nullptr) {
-		throw std::runtime_error("Failed to create GLFW Window");
-	}
-	glfwMakeContextCurrent(windowHandle);
-
-	glewExperimental = GL_TRUE;
-	if (glewInit() != GLEW_OK) {
-		throw std::runtime_error("Failed to init GLEW");
-	}
-
-	glViewport(0, 0, width, height); 
-	Logger::i("Init-ed window for renderer.");
+RawTexture::RawTexture(vec2ui size, std::vector<unsigned char> *v): size (size),
+data(*v) {
+  // this->data = new unsigned char[size.x * size.y * 3];
+  // for (unsigned i = 0; i<= size.x * size.y * 3; i++) {
+  //   this->data[i] = data[i];
+  // }
 }
 
-Window::~Window() {
-	glfwDestroyWindow(windowHandle);
+RawTexture::~RawTexture() {
+
 }
 
-void SpriteRenderer::init() {
-	float quadratVertices[] = {
-	// positions         //texture coords
-		1.0f,  1.0f,    1.0f, 1.0f, // top right
-		1.0f,  0.0f,   1.0f, 0.0f, // bottom right
-		0.0f,  0.0f,   0.0f, 0.0f, // bottom left
-		0.0f,  1.0f,   0.0f, 1.0f  // top left 
-	};
-	
-	float halfedQuadratVertices[] = {
-		// positions   //texture coords
-		1.0f,  0.5f,   1.0f, 0.5f, // top right
-		1.0f,  0.0f,   1.0f, 0.0f, // bottom right
-		0.0f,  0.0f,   0.0f, 0.0f, // bottom left
-		0.0f,  0.5f,   0.0f, 0.5f  // top left 
-	};
+Window::Window(vec2ui size, std::string title):
+ size(size), title(title) {
 
-	float marioVertices[] = {
-		// positions   //texture coords
-		2.0f/3.0f,  1.0f,   1.0f, 1.0f, // top right
-		2.0f/3.0f,  0.0f,   1.0f, 0.0f, // bottom right
-		0.0f, 	    0.0f,   0.0f, 0.0f, // bottom left
-		0.0f,       1.0f,   0.0f, 1.0f  // top left 
-	};
-	
-	addSprite(quadratVertices, std::string("quadratSprite"));
-	addSprite(halfedQuadratVertices, std::string("halfedQuadratSprite"));
-	addSprite(marioVertices, std::string("marioSprite"));
+ 	glfwWindowHint(GLFW_RESIZABLE, GLFW_FALSE);
 
-	glGenVertexArrays(1, &textVAO);
-	glGenBuffers(1, &textVBO);
-	glBindVertexArray(textVAO);
-	glBindBuffer(GL_ARRAY_BUFFER, textVBO);
-	glBufferData(GL_ARRAY_BUFFER, sizeof(GLfloat) * 6 * 4, NULL, GL_DYNAMIC_DRAW);
-	glEnableVertexAttribArray(0);
-	glVertexAttribPointer(0, 4, GL_FLOAT, GL_FALSE, 4 * sizeof(GLfloat), 0);
-	glBindBuffer(GL_ARRAY_BUFFER, 0);
-	glBindVertexArray(0);
+ 	windowHandle = glfwCreateWindow(size.x, size.y, title.c_str(), nullptr, nullptr);
 
-	Engine::ResourceManager::shaders["projectionShader"]->addUniformInt("texture1", 0, true);
-	Engine::ResourceManager::shaders["projectionShader"]->addUniformMatrix4("projection", Math::ortho(0.0f, Engine::Game::getGameWindow()->width,
-		 0.0f, Engine::Game::getGameWindow()->height, -1.0f, 1.0f), true);
-	Engine::ResourceManager::shaders["textShader"]->addUniformMatrix4("projection", Math::ortho(0.0f, Engine::Game::getGameWindow()->width,
-		 0.0f, Engine::Game::getGameWindow()->height, -1.0f, 1.0f), true);
+ 	if (windowHandle == nullptr) {
+ 		throw std::runtime_error("Failed to create GLFW Window");
+ 	}
+
 }
 
-void SpriteRenderer::addSprite(float* vertices, std::string name) {
-	
-	GLuint VAO, VBO, EBO;
-	unsigned int indices[] = {
-		0, 1, 3, // first triangle
-		1, 2, 3  // second triangle
-    	};
-    	
-	glGenVertexArrays(1, &VAO);
-	glGenBuffers(1, &VBO);
-	glGenBuffers(1, &EBO);
-
-	glBindVertexArray(VAO);
-
-	glBindBuffer(GL_ARRAY_BUFFER, VBO);
-	glBufferData(GL_ARRAY_BUFFER, sizeof(float) * 16, vertices, GL_STATIC_DRAW);
-
-	glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, EBO);
-	glBufferData(GL_ELEMENT_ARRAY_BUFFER, sizeof(indices), indices, GL_STATIC_DRAW);
-
-	// position attribute
-	glVertexAttribPointer(0, 2, GL_FLOAT, GL_FALSE, 4 * sizeof(float), (void*)0);
-	glEnableVertexAttribArray(0);
-	// color attribute
-	glVertexAttribPointer(1, 2, GL_FLOAT, GL_FALSE, 4 * sizeof(float), (void*)(2 * sizeof(float)));
-	glEnableVertexAttribArray(1);
-	
-	sprites[name] = VAO;
+void Renderer::selectRendererType(RendererType rendererType) {
+  Renderer::prefRendererType = rendererType;
+  Logger::s("Prefered renderer set to " + (prefRendererType == OPENGL ?
+   std::string("OpenGL") : prefRendererType == VULKAN ? std::string("Vulkan") :
+   std::string( "Unknown")));
 }
 
-void SpriteRenderer::renderText(std::string text, GLfloat x1, GLfloat y, GLfloat scale, Math::vec3<GLfloat> color)
-{
-    // Activate corresponding render state	
-    //shader.Use();
-    Engine::ResourceManager::shaders["textShader"]->use();
-    Engine::ResourceManager::shaders["textShader"]->addUniformVec3f("textColor", color, true);
-    //glUniform3f(glGetUniformLocation(shader.Program, "textColor"), color.x, color.y, color.z);
-    glActiveTexture(GL_TEXTURE0);
-    glBindVertexArray(textVAO);
-
-    // Iterate through all characters
-    std::string::const_iterator c;
-    GLfloat x = x1;
-    for (c = text.begin(); c != text.end(); c++) 
-    {
-        Engine::FontChar ch = *Engine::ResourceManager::font[*c];
-
-        GLfloat xpos = x + ch.bearing.x * scale;
-        GLfloat ypos = y - (ch.size.y - ch.bearing.y) * scale;
-
-        GLfloat w = ch.size.x * scale;
-        GLfloat h = ch.size.y * scale;
-        //Logger::w("g_w:" + std::to_string(w) + ", g_h:" + std::to_string(h));
-        // Update VBO for each character
-        GLfloat vertices[6][4] = {
-            { xpos,     ypos + h,   0.0, 0.0 },            
-            { xpos,     ypos,       0.0, 1.0 },
-            { xpos + w, ypos,       1.0, 1.0 },
-
-            { xpos,     ypos + h,   0.0, 0.0 },
-            { xpos + w, ypos,       1.0, 1.0 },
-            { xpos + w, ypos + h,   1.0, 0.0 }           
-        };
-        // Render glyph texture over quad
-        glBindTexture(GL_TEXTURE_2D, ch.textureId);
-        // Update content of VBO memory
-        glBindBuffer(GL_ARRAY_BUFFER, textVBO);
-        glBufferSubData(GL_ARRAY_BUFFER, 0, sizeof(vertices), vertices); // Be sure to use glBufferSubData and not glBufferData
-
-        glBindBuffer(GL_ARRAY_BUFFER, 0);
-        // Render quad
-        glDrawArrays(GL_TRIANGLES, 0, 6);
-        // Now advance cursors for next glyph (note that advance is number of 1/64 pixels)
-        x += (ch.advance>>6) * scale; // Bitshift by 6 to get value in pixels (2^6 = 64 (divide amount of 1/64th pixels by 64 to get amount of pixels))
+const std::unique_ptr<Renderer>& Renderer::getInstance() {
+  if (!Renderer::instance) {
+    if (prefRendererType == VULKAN) {
+      instance = std::unique_ptr<Renderer>(new VulkanRenderer());
+    } else {
+      instance = std::unique_ptr<Renderer>(new OpenGlRenderer());
     }
-    glBindVertexArray(0);
-    glBindTexture(GL_TEXTURE_2D, 0);
+    // else {
+    //   throw std::runtime_error("Unknown rendererType");
+    // }
+  }
+  return instance;
+}
+
+void Renderer::loadTextures() {
+  loadTexture(std::string("terrain_balk_16"), std::string("terrainBalk"));
+  loadTexture(std::string("terrain_ladder_16"), std::string("terrainLadder"));
+  loadTexture(std::string("barrel1_front_16"), std::string("barrelFront1"));
+  loadTexture(std::string("barrel2_front_16"), std::string("barrelFront2"));
+  loadTexture(std::string("barrel1_16"), std::string("barrel1"));
+  loadTexture(std::string("barrel2_16"), std::string("barrel2"));
+  loadTexture(std::string("barrel3_16"), std::string("barrel3"));
+  loadTexture(std::string("barrel4_16"), std::string("barrel4"));
+  loadTexture(std::string("runRight1_16"), std::string("runRight1"));
+  loadTexture(std::string("runRight2_16"), std::string("runRight2"));
+  loadTexture(std::string("runLeft1_16"), std::string("runLeft1"));
+  loadTexture(std::string("runLeft2_16"), std::string("runLeft2"));
+  loadTexture(std::string("jumpLeft_16"), std::string("jumpLeft"));
+  loadTexture(std::string("jumpRight_16"), std::string("jumpRight"));
+  loadTexture(std::string("climb1_16"), std::string("climb1"));
+  loadTexture(std::string("climb2_16"), std::string("climb2"));
+}
+
+void Renderer::loadFont(const std::string& fontName) {
+  std::unique_ptr<std::string> fileString = std::unique_ptr<std::string>(
+    readFile(*Utils::PATH_FONTS + fontName));
+  unsigned start = 0;
+  unsigned end = 0;
+  std::string colon = ";";
+  if (!fileString->empty()) {
+    for (unsigned k = 0; k < 256; k++) {
+      GLfloat width = nextToken(start, end, *fileString);
+      GLfloat height = nextToken(start, end, *fileString);
+      GLfloat left = nextToken(start, end, *fileString);
+      GLfloat top = nextToken(start, end, *fileString);
+      GLuint advance = nextToken(start, end, *fileString);
+
+      unsigned dim = (unsigned)((width == height) && (width == 0) ? 0 : ((width == 0 ? 1 : width) * (height == 0 ? 1 : height)));
+      std::vector<unsigned char> *data = new std::vector<unsigned char>();
+      for (unsigned i = 0; i < dim; i++) {
+        end = fileString->find(colon, start);
+        unsigned char c = nextToken(start, end, *fileString) * 255;
+        data->push_back(c);
+      }
+      Math::vec2f size = Math::vec2f(width, height);
+      Math::vec2f bearing = Math::vec2f(left, top);
+      generateFontChar(k, size, bearing, advance, data);
+    }
+  //static_cast<OpenGlRenderer*>(this)->test("open-sans");
+   }
+}
+
+void Renderer::loadTexture(const std::string& fileName,
+   const std::string& textureName) {
+  generateTexture(textureName, parseTexture(fileName));
+}
+
+void Renderer::addView(View* view) {
+  drawList.push_back(view);
+}
+
+void Renderer::removeView(View* view) {
+  auto it = std::find(drawList.begin(), drawList.end(), view);
+  if (it != drawList.end())
+    drawList.erase(it);
+
+}
+
+const std::unique_ptr<Window>& Renderer::getWindow() {
+  return window;
+}
+
+int Renderer::nextToken(unsigned& start, unsigned& end, std::string& str) {
+	end = str.find(";", start);
+	int value = std::stoi(str.substr(start, end - start));
+	start = end + 1;
+	return value;
 }
