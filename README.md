@@ -8,12 +8,12 @@ Computer Science Project Work at http://www.hs-karlsruhe.de/.
   </tr>
   <tr>
     <td>
-      <img src="images/start.png" width = "200">
+      <img src="images/start.png" width = "250">
     </td>
     <td>
-      <img src="images/gameplay.png" width = "200">
+      <img src="images/gameplay.png" width = "250">
     </td>
     <td>
-      <img src="images/end.png" width = "200">
+      <img src="images/end.png" width = "250">
     </td>
   </tr>
