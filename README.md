@@ -1,6 +1,6 @@
 Computer Science Project Work at http://www.hs-karlsruhe.de/.
 
-![Game start & Record table](images/start.png)
+<img src="images/start.png" width = "120">
 
 ![Gameplay](images/gameplay.png)
 
