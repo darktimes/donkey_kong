@@ -3,10 +3,10 @@ H_FILES := includes
 CPP_FILES := $(wildcard src/*.cpp)
 OBJ_FILES := $(addprefix obj/,$(notdir $(CPP_FILES:.cpp=.o)))
 LD_FLAGS :=
-LD_LIBS := -L$(VULKAN_SDK_PATH)/lib `pkg-config --static --libs glfw3` -lvulkan -lGLEW -lGL
-#LD_LIBS := -ldl -lXinerama -lXrandr -lXi -lXcursor -lXxf86vm -lpthread -lGL  -lGLEW -lrt -lglfw
-CC_FLAGS := -Wall -g -std=gnu++17 -I$(H_FILES) -I/usr/include -I$(VULKAN_SDK_PATH)/include
-
+LD_LIBS := `pkg-config --static --libs glfw3` -lGLEW -lGL
+#LD_LIBS := -ldl -lXinerama -lXrandr -lXi -lXcursor -lXxf86vm -lpthread -lGL  -lGLEW -lrt -lglfw -lvulkan -L$(VULKAN_SDK_PATH)/lib 
+CC_FLAGS := -Wall -g -std=gnu++17 -I$(H_FILES) -I/usr/include
+#CC_FLAGS :=  -I$(VULKAN_SDK_PATH)/include
 donkeyKong: $(OBJ_FILES)
 	g++ $(LD_FLAGS) -o $@ $^ $(LD_LIBS)
 

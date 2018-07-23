@@ -23,15 +23,16 @@ int main(int argc, char** args) {
   Game& gameInstance = Game::getInstance();
   if (argumentPresent("-test", argc, args)) {
     gameInstance.init(Game::TEST);
-    gameInstance.test();
+	//some testing?
   } else {
-    if (argumentPresent("-vulkan", argc, args))
-      Renderer::selectRendererType(VULKAN);
-    else
-      Renderer::selectRendererType(OPENGL);
-    gameInstance.init(Game::DEFAULT);
-    gameInstance.run();
-  }
+		if (argumentPresent("-vulkan", argc, args)) {
+			std::cout<<"Vulkan rendering is not supported yet, aborting.";	
+		} else {
+			Renderer::selectRendererType(OPENGL);
+			gameInstance.init(Game::DEFAULT);
+			gameInstance.run();
+		}
+	}
   gameInstance.terminate();
   return 0;
 }

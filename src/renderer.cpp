@@ -46,6 +46,7 @@ void Renderer::selectRendererType(RendererType rendererType) {
 const std::unique_ptr<Renderer>& Renderer::getInstance() {
   if (!Renderer::instance) {
     if (prefRendererType == VULKAN) {
+		throw std::runtime_error("Vulkan renderer is not supported.");
       instance = std::unique_ptr<Renderer>(new VulkanRenderer());
     } else {
       instance = std::unique_ptr<Renderer>(new OpenGlRenderer());
